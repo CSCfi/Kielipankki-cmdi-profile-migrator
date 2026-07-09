@@ -1,0 +1,11 @@
+---
+# Copy to config/migrator.yml and fill in your values.
+# Any key here becomes the default for the matching CLI option,
+# so you only need to pass CLI flags when you want to override.
+
+oai_url: https://clarino.uib.no/oai
+oai_set: FIN-CLARIN
+metadata_prefix: cmdi
+upload_url: https://clarino.uib.no/comedi/upload
+input_dir: ./harvested
+output_dir: ./converted
