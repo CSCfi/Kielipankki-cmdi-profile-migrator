@@ -34,7 +34,10 @@ class TestConfig:
         assert result.exit_code != 0
         assert "config file not found" in result.output
 
-    def test_config_values_satisfy_required_options(self, runner, config_file, tmp_path):
+    def test_config_values_satisfy_required_options(
+        self, runner, config_file, tmp_path
+    ):
+        """Config file values should be used to satisfy required options."""
         result = runner.invoke(
             cli,
             ["--config", config_file, "convert", "--output-dir", str(tmp_path)],
@@ -42,9 +45,19 @@ class TestConfig:
         assert "Missing option" not in result.output
 
     def test_config_value_can_be_overridden_by_flag(self, runner, config_file):
+        """An explicit CLI flag should take precedence over the config file value."""
         result = runner.invoke(
             cli,
-            ["--config", config_file, "harvest", "--oai-url", "https://other.org/oai",
-             "--set", "other-corpus", "--output-dir", "."],
+            [
+                "--config",
+                config_file,
+                "harvest",
+                "--oai-url",
+                "https://other.org/oai",
+                "--set",
+                "other-corpus",
+                "--output-dir",
+                ".",
+            ],
         )
         assert "Missing option" not in result.output
