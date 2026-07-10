@@ -1,8 +1,8 @@
 """Tests for CLI config file loading."""
+
 # pytest fixtures are injected by name, which pylint sees as shadowing the
-# module-level fixture function. Test methods and classes are self-documenting
-# through their names, so docstrings are omitted.
-# pylint: disable=redefined-outer-name,missing-function-docstring,missing-class-docstring
+# module-level fixture function.
+# pylint: disable=redefined-outer-name
 import pytest
 from click.testing import CliRunner
 
@@ -11,11 +11,13 @@ from migrator.cli import cli
 
 @pytest.fixture
 def runner():
+    """Provide a Click test runner."""
     return CliRunner()
 
 
 @pytest.fixture
 def config_file(tmp_path):
+    """Write a minimal config file and return its path."""
     f = tmp_path / "migrator.yml"
     f.write_text(
         "oai_url: https://oai.example.org/oai\n"
@@ -29,7 +31,10 @@ def config_file(tmp_path):
 
 
 class TestConfig:
+    """Tests for YAML config file loading and option defaulting."""
+
     def test_missing_config_file_gives_clean_error(self, runner):
+        """A non-existent config path should produce a user-friendly error."""
         result = runner.invoke(cli, ["--config", "/no/such/file.yml", "harvest"])
         assert result.exit_code != 0
         assert "config file not found" in result.output
