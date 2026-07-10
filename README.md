@@ -5,7 +5,7 @@ A tool for converting metadata records in [Comedi](https://clarino.uib.no/comedi
 ## Setup
 
 ```bash
-python3 -m venv .venv
+virtualenv -p python3.10 .venv
 source .venv/bin/activate
 pip install -r requirements_dev.txt  # or requirements.txt for production requirements only
 ```
