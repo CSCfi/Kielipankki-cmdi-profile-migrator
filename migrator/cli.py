@@ -8,6 +8,7 @@ from pathlib import Path
 
 import click
 import yaml  # type: ignore[import-untyped]  # PyYAML ships no type stubs
+from migrator.convert import convert_dir as _convert_dir
 from migrator.harvest import harvest as _harvest
 
 _opt_quiet = click.option(
@@ -89,9 +90,11 @@ def harvest(oai_url, oai_set, metadata_prefix, raw_dir, limit, quiet):
     help="Directory to write the converted records",
 )
 @_opt_limit
-def convert(raw_dir, converted_dir, limit):
+@_opt_quiet
+def convert(raw_dir, converted_dir, limit, quiet):
     """Convert records from resourceInfo to resourceInfo-corpus-v1."""
-    raise NotImplementedError("convert is not yet implemented")
+    count = _convert_dir(raw_dir, converted_dir, limit, quiet)
+    click.echo(f"Done. Converted {count} records to {converted_dir}.")
 
 
 @cli.command()
