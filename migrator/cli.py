@@ -39,8 +39,13 @@ class _ConfigGroup(click.Group):
     type=click.Path(),
     help="Path to the config file (see config/template.yml)",
 )
-def cli(config):  # pylint: disable=unused-argument
+@click.option(
+    "--quiet", "-q", is_flag=True, default=False, help="Suppress progress output"
+)
+@click.pass_context
+def cli(ctx, config, quiet):  # pylint: disable=unused-argument
     """CMDI profile migrator: convert resourceInfo records to resourceInfo-corpus-v1."""
+    ctx.obj = {"quiet": quiet}
 
 
 @cli.command()
@@ -54,9 +59,11 @@ def cli(config):  # pylint: disable=unused-argument
     help="Directory to save harvested records",
 )
 @click.option("--limit", default=None, type=int, help="Stop after N records")
-def harvest(oai_url, oai_set, metadata_prefix, raw_dir, limit):
+@click.pass_context
+def harvest(ctx, oai_url, oai_set, metadata_prefix, raw_dir, limit):
     """Harvest CMDI records from an OAI-PMH endpoint."""
-    count = _harvest(oai_url, oai_set, metadata_prefix, raw_dir, limit)
+    quiet = ctx.obj.get("quiet", False)
+    count = _harvest(oai_url, oai_set, metadata_prefix, raw_dir, limit, quiet)
     click.echo(f"Done. Saved {count} records to {raw_dir}.")
 
 

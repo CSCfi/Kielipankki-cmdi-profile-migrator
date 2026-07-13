@@ -2,6 +2,8 @@
 
 # lxml is a C extension - pylint cannot introspect its members at analysis time.
 # pylint: disable=c-extension-no-member
+# harvest() receives one argument per CLI option, so the limit does not apply.
+# pylint: disable=too-many-arguments,too-many-positional-arguments
 
 from pathlib import Path
 
@@ -34,7 +36,7 @@ def _save_record(record_el, dest):
     dest.write_bytes(etree.tostring(record_el, xml_declaration=True, encoding="UTF-8"))
 
 
-def harvest(oai_url, oai_set, metadata_prefix, output_dir, limit):
+def harvest(oai_url, oai_set, metadata_prefix, output_dir, limit, quiet=False):
     """Harvest records from an OAI-PMH endpoint and save them to output_dir.
 
     Returns the number of records saved.
@@ -54,9 +56,11 @@ def harvest(oai_url, oai_set, metadata_prefix, output_dir, limit):
             continue
         _save_record(cmdi, out / _filename(record.header.identifier))
         count += 1
-        click.echo(f"\rHarvested {count} records...", nl=False)
+        if not quiet:
+            click.echo(f"\rHarvested {count} records...", nl=False)
         if limit and count >= limit:
             break
 
-    click.echo("")
+    if not quiet:
+        click.echo("")
     return count
