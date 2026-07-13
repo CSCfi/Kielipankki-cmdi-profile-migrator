@@ -10,6 +10,20 @@ import click
 import yaml  # type: ignore[import-untyped]  # PyYAML ships no type stubs
 from migrator.harvest import harvest as _harvest
 
+_opt_quiet = click.option(
+    "--quiet", "-q", is_flag=True, default=False, help="Suppress progress output"
+)
+_opt_oai_url = click.option("--oai-url", required=True, help="OAI-PMH base URL")
+_opt_oai_set = click.option(
+    "--set", "oai_set", required=True, help="OAI-PMH set to harvest"
+)
+_opt_upload_url = click.option(
+    "--upload-url", required=True, help="URL used when uploading the records"
+)
+_opt_limit = click.option(
+    "--limit", default=None, type=int, help="Stop after N records"
+)
+
 
 class _ConfigGroup(click.Group):
     """Group that loads a YAML config file and feeds its values as option defaults."""
@@ -39,18 +53,13 @@ class _ConfigGroup(click.Group):
     type=click.Path(),
     help="Path to the config file (see config/template.yml)",
 )
-@click.option(
-    "--quiet", "-q", is_flag=True, default=False, help="Suppress progress output"
-)
-@click.pass_context
-def cli(ctx, config, quiet):  # pylint: disable=unused-argument
+def cli(config):  # pylint: disable=unused-argument
     """CMDI profile migrator: convert resourceInfo records to resourceInfo-corpus-v1."""
-    ctx.obj = {"quiet": quiet}
 
 
 @cli.command()
-@click.option("--oai-url", required=True, help="OAI-PMH base URL")
-@click.option("--set", "oai_set", required=True, help="OAI-PMH set to harvest")
+@_opt_oai_url
+@_opt_oai_set
 @click.option("--metadata-prefix", default="cmdi", show_default=True)
 @click.option(
     "--raw-dir",
@@ -58,11 +67,10 @@ def cli(ctx, config, quiet):  # pylint: disable=unused-argument
     type=click.Path(),
     help="Directory to save harvested records",
 )
-@click.option("--limit", default=None, type=int, help="Stop after N records")
-@click.pass_context
-def harvest(ctx, oai_url, oai_set, metadata_prefix, raw_dir, limit):
+@_opt_limit
+@_opt_quiet
+def harvest(oai_url, oai_set, metadata_prefix, raw_dir, limit, quiet):
     """Harvest CMDI records from an OAI-PMH endpoint."""
-    quiet = ctx.obj.get("quiet", False)
     count = _harvest(oai_url, oai_set, metadata_prefix, raw_dir, limit, quiet)
     click.echo(f"Done. Saved {count} records to {raw_dir}.")
 
@@ -80,7 +88,7 @@ def harvest(ctx, oai_url, oai_set, metadata_prefix, raw_dir, limit):
     type=click.Path(),
     help="Directory to write the converted records",
 )
-@click.option("--limit", default=None, type=int, help="Stop after N records")
+@_opt_limit
 def convert(raw_dir, converted_dir, limit):
     """Convert records from resourceInfo to resourceInfo-corpus-v1."""
     raise NotImplementedError("convert is not yet implemented")
@@ -111,23 +119,23 @@ def validate(converted_dir, schema):
     type=click.Path(exists=True),
     help="Directory containing the converted records to upload",
 )
-@click.option("--upload-url", required=True, help="URL used when uploading the records")
+@_opt_upload_url
 @click.option(
     "--dry-run",
     is_flag=True,
     default=True,
     help="Print what would be uploaded without uploading",
 )
-@click.option("--limit", default=None, type=int, help="Stop after N records")
+@_opt_limit
 def upload(converted_dir, upload_url, dry_run, limit):
     """Upload converted records to the repository."""
     raise NotImplementedError("upload is not yet implemented")
 
 
 @cli.command()
-@click.option("--oai-url", required=True, help="OAI-PMH base URL")
-@click.option("--set", "oai_set", required=True, help="OAI-PMH set to harvest")
-@click.option("--upload-url", required=True, help="URL used when uploading the records")
+@_opt_oai_url
+@_opt_oai_set
+@_opt_upload_url
 @click.option(
     "--raw-dir",
     required=True,
@@ -146,7 +154,7 @@ def upload(converted_dir, upload_url, dry_run, limit):
     default=False,
     help="Harvest and convert but do not upload",
 )
-@click.option("--limit", default=None, type=int, help="Stop after N records")
+@_opt_limit
 def run(oai_url, oai_set, upload_url, raw_dir, converted_dir, dry_run, limit):
     """Run the full pipeline: harvest, convert, validate and upload"""
     raise NotImplementedError("run is not yet implemented")
