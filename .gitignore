@@ -1,4 +1,5 @@
 profiles
+records
 config/*
 !config/template.yml
 */__pycache__

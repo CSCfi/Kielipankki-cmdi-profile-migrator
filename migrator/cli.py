@@ -47,42 +47,42 @@ def cli(config):  # pylint: disable=unused-argument
 @click.option("--set", "oai_set", required=True, help="OAI-PMH set to harvest")
 @click.option("--metadata-prefix", default="cmdi", show_default=True)
 @click.option(
-    "--output-dir",
+    "--raw-dir",
     required=True,
     type=click.Path(),
     help="Directory to save harvested records",
 )
 @click.option("--limit", default=None, type=int, help="Stop after N records")
-def harvest(oai_url, oai_set, metadata_prefix, output_dir, limit):
+def harvest(oai_url, oai_set, metadata_prefix, raw_dir, limit):
     """Harvest CMDI records from an OAI-PMH endpoint."""
     raise NotImplementedError("harvest is not yet implemented")
 
 
 @cli.command()
 @click.option(
-    "--input-dir",
+    "--raw-dir",
     required=True,
     type=click.Path(exists=True),
-    help="Directory from which the original records are read",
+    help="Directory containing the harvested records to convert",
 )
 @click.option(
-    "--output-dir",
+    "--converted-dir",
     required=True,
     type=click.Path(),
-    help="Directory to which the converted records are written",
+    help="Directory to write the converted records",
 )
 @click.option("--limit", default=None, type=int, help="Stop after N records")
-def convert(input_dir, output_dir, limit):
+def convert(raw_dir, converted_dir, limit):
     """Convert records from resourceInfo to resourceInfo-corpus-v1."""
     raise NotImplementedError("convert is not yet implemented")
 
 
 @cli.command()
 @click.option(
-    "--input-dir",
+    "--converted-dir",
     required=True,
     type=click.Path(exists=True),
-    help="Directory containing the records to be validated",
+    help="Directory containing the converted records to validate",
 )
 @click.option(
     "--schema",
@@ -90,17 +90,17 @@ def convert(input_dir, output_dir, limit):
     type=click.Path(),
     help="Path to XSD schema",
 )
-def validate(input_dir, schema):
+def validate(converted_dir, schema):
     """Validate records against the new-profile XSD schema."""
     raise NotImplementedError("validate is not yet implemented")
 
 
 @cli.command()
 @click.option(
-    "--input-dir",
+    "--converted-dir",
     required=True,
     type=click.Path(exists=True),
-    help="Directory of from which to read the records to be uploaded",
+    help="Directory containing the converted records to upload",
 )
 @click.option("--upload-url", required=True, help="URL used when uploading the records")
 @click.option(
@@ -110,7 +110,7 @@ def validate(input_dir, schema):
     help="Print what would be uploaded without uploading",
 )
 @click.option("--limit", default=None, type=int, help="Stop after N records")
-def upload(input_dir, upload_url, dry_run, limit):
+def upload(converted_dir, upload_url, dry_run, limit):
     """Upload converted records to the repository."""
     raise NotImplementedError("upload is not yet implemented")
 
@@ -120,13 +120,13 @@ def upload(input_dir, upload_url, dry_run, limit):
 @click.option("--set", "oai_set", required=True, help="OAI-PMH set to harvest")
 @click.option("--upload-url", required=True, help="URL used when uploading the records")
 @click.option(
-    "--input-dir",
+    "--raw-dir",
     required=True,
     type=click.Path(),
     help="Directory to save harvested records",
 )
 @click.option(
-    "--output-dir",
+    "--converted-dir",
     required=True,
     type=click.Path(),
     help="Directory to write converted records",
@@ -138,6 +138,6 @@ def upload(input_dir, upload_url, dry_run, limit):
     help="Harvest and convert but do not upload",
 )
 @click.option("--limit", default=None, type=int, help="Stop after N records")
-def run(oai_url, oai_set, upload_url, input_dir, output_dir, dry_run, limit):
+def run(oai_url, oai_set, upload_url, raw_dir, converted_dir, dry_run, limit):
     """Run the full pipeline: harvest, convert, validate and upload"""
     raise NotImplementedError("run is not yet implemented")

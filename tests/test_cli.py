@@ -23,8 +23,8 @@ def config_file(tmp_path):
         "oai_url: https://oai.example.org/oai\n"
         "oai_set: my-corpus\n"
         "upload_url: https://api.example.org\n"
-        "input_dir: .\n"
-        "output_dir: ./out\n",
+        "raw_dir: .\n"
+        "converted_dir: ./converted\n",
         encoding="utf-8",
     )
     return str(f)
@@ -39,13 +39,11 @@ class TestConfig:
         assert result.exit_code != 0
         assert "config file not found" in result.output
 
-    def test_config_values_satisfy_required_options(
-        self, runner, config_file, tmp_path
-    ):
+    def test_config_values_satisfy_required_options(self, runner, config_file):
         """Config file values should be used to satisfy required options."""
         result = runner.invoke(
             cli,
-            ["--config", config_file, "convert", "--output-dir", str(tmp_path)],
+            ["--config", config_file, "convert"],
         )
         assert "Missing option" not in result.output
 
@@ -61,7 +59,7 @@ class TestConfig:
                 "https://other.org/oai",
                 "--set",
                 "other-corpus",
-                "--output-dir",
+                "--raw-dir",
                 ".",
             ],
         )

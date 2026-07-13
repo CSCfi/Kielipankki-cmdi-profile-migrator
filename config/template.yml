@@ -7,5 +7,5 @@ oai_url: https://clarino.uib.no/oai
 oai_set: FIN-CLARIN
 metadata_prefix: cmdi
 upload_url: https://clarino.uib.no/comedi/upload
-input_dir: ./harvested
-output_dir: ./converted
+raw_dir: records/raw
+converted_dir: records/converted
