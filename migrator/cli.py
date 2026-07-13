@@ -8,6 +8,7 @@ from pathlib import Path
 
 import click
 import yaml  # type: ignore[import-untyped]  # PyYAML ships no type stubs
+from migrator.harvest import harvest as _harvest
 
 
 class _ConfigGroup(click.Group):
@@ -55,7 +56,8 @@ def cli(config):  # pylint: disable=unused-argument
 @click.option("--limit", default=None, type=int, help="Stop after N records")
 def harvest(oai_url, oai_set, metadata_prefix, raw_dir, limit):
     """Harvest CMDI records from an OAI-PMH endpoint."""
-    raise NotImplementedError("harvest is not yet implemented")
+    count = _harvest(oai_url, oai_set, metadata_prefix, raw_dir, limit)
+    click.echo(f"Done. Saved {count} records to {raw_dir}.")
 
 
 @cli.command()
