@@ -283,7 +283,7 @@ class TestLicenceMapping:
         assert url is not None
         assert "creativecommons.org" in url.text
 
-    def test_unknown_licence_has_no_license_link(self):
-        """Unmapped licences produce no licenseLink; validate will flag these."""
+    def test_unknown_licence_gets_stub_license_link(self):
+        """Unmapped licences get a stub licenseLink (licenseLink is required, minOccurs=1)."""
         root = _convert_and_parse(_record_with_licence("underNegotiation"))
-        assert root.find(f".//{_ns('licenseLink')}") is None
+        assert root.find(f".//{_ns('licenseLink')}") is not None
