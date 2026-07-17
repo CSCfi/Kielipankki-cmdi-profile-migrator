@@ -24,7 +24,7 @@ def config_file(tmp_path):
         "oai_set: my-corpus\n"
         "upload_url: https://api.example.org\n"
         "raw_dir: .\n"
-        "converted_dir: ./converted\n",
+        f"converted_dir: {tmp_path}/converted\n",
         encoding="utf-8",
     )
     return str(f)
