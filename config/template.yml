@@ -9,3 +9,4 @@ metadata_prefix: cmdi
 upload_url: https://clarino.uib.no/comedi/upload
 raw_dir: records/raw
 converted_dir: records/converted
+schema: /path/to/resourceInfo-corpus-v1.xsd

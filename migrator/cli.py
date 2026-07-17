@@ -10,6 +10,7 @@ import click
 import yaml  # type: ignore[import-untyped]  # PyYAML ships no type stubs
 from migrator.convert import convert_dir as _convert_dir
 from migrator.harvest import harvest as _harvest
+from migrator.validate import validate_dir as _validate_dir
 
 _opt_quiet = click.option(
     "--quiet", "-q", is_flag=True, default=False, help="Suppress progress output"
@@ -106,13 +107,17 @@ def convert(raw_dir, converted_dir, limit, quiet):
 )
 @click.option(
     "--schema",
-    default=None,
-    type=click.Path(),
-    help="Path to XSD schema",
+    required=True,
+    type=click.Path(exists=True),
+    help="Path to XSD schema (set via config file or --schema)",
 )
-def validate(converted_dir, schema):
-    """Validate records against the new-profile XSD schema."""
-    raise NotImplementedError("validate is not yet implemented")
+@_opt_quiet
+def validate(converted_dir, schema, quiet):
+    """Validate converted records against the destination profile XSD."""
+    valid, invalid = _validate_dir(converted_dir, schema, quiet)
+    click.echo(f"Done. {valid} valid, {invalid} invalid.")
+    if invalid:
+        raise click.ClickException(f"{invalid} record(s) failed validation.")
 
 
 @cli.command()
