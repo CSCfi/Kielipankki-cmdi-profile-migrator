@@ -74,7 +74,15 @@
       <xsl:apply-templates select="cmdp:availability"/>
       <xsl:apply-templates select="cmdp:availabilityStartDate"/>
       <xsl:apply-templates select="cmdp:availabilityEndDate"/>
-      <xsl:element name="accessInfo" namespace="{$NEW_NS}"/>
+      <xsl:element name="accessInfo" namespace="{$NEW_NS}">
+        <xsl:for-each select="cmdp:licenceInfo/cmdp:distributionAccessMedium">
+          <xsl:element name="distributionAccessMedium" namespace="{$NEW_NS}">
+            <xsl:call-template name="map-access-medium">
+              <xsl:with-param name="val" select="."/>
+            </xsl:call-template>
+          </xsl:element>
+        </xsl:for-each>
+      </xsl:element>
       <xsl:apply-templates select="cmdp:licenceInfo"/>
       <!-- iprHolderOrganization/Person dropped: no equivalent in new profile -->
     </xsl:element>
@@ -125,6 +133,16 @@
   </xsl:template>
 
   <!-- Map old licence value to new licenseType string -->
+  <xsl:template name="map-access-medium">
+    <xsl:param name="val"/>
+    <xsl:choose>
+      <xsl:when test="$val = 'downloadable'">Downloadable</xsl:when>
+      <xsl:when test="$val = 'accessibleThroughInterface'">Web Interface</xsl:when>
+      <xsl:when test="$val = 'webExecutable'">Downloadable</xsl:when>  <!-- This is only present in https://clarino.uib.no/comedi/editor/lb-2019082801 and that is in fact downloadable from zenodo -->
+      <xsl:otherwise>Other</xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template name="map-licence">
     <xsl:param name="val"/>
     <xsl:choose>

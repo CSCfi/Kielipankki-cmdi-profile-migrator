@@ -168,7 +168,15 @@
       <xsl:apply-templates select="cmd11:availability"/>
       <xsl:apply-templates select="cmd11:availabilityStartDate"/>
       <xsl:apply-templates select="cmd11:availabilityEndDate"/>
-      <xsl:element name="accessInfo" namespace="{$NEW_PROFILE_NS}"/>
+      <xsl:element name="accessInfo" namespace="{$NEW_PROFILE_NS}">
+        <xsl:for-each select="cmd11:licenceInfo/cmd11:distributionAccessMedium">
+          <xsl:element name="distributionAccessMedium" namespace="{$NEW_PROFILE_NS}">
+            <xsl:call-template name="map-access-medium">
+              <xsl:with-param name="val" select="."/>
+            </xsl:call-template>
+          </xsl:element>
+        </xsl:for-each>
+      </xsl:element>
       <!-- licenseInfo is required (min=1); max=1 so only take first licenceInfo -->
       <xsl:choose>
         <xsl:when test="cmd11:licenceInfo">
@@ -480,6 +488,16 @@
   <!-- ============================================================
        LICENCE MAPPING
        ============================================================ -->
+
+  <xsl:template name="map-access-medium">
+    <xsl:param name="val"/>
+    <xsl:choose>
+      <xsl:when test="$val = 'downloadable'">Downloadable</xsl:when>
+      <xsl:when test="$val = 'accessibleThroughInterface'">Web Interface</xsl:when>
+      <xsl:when test="$val = 'webExecutable'">Downloadable</xsl:when>  <!-- This is only present in https://clarino.uib.no/comedi/editor/lb-2019082801 and that is in fact downloadable from zenodo -->
+      <xsl:otherwise>Other</xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 
   <xsl:template name="map-licence">
     <xsl:param name="val"/>
