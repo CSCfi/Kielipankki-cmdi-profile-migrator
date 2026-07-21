@@ -177,7 +177,6 @@
           </xsl:element>
         </xsl:for-each>
       </xsl:element>
-      <!-- exactly one licenseInfo is required: add stub for other cases  -->
       <xsl:choose>
         <xsl:when test="count(cmd11:licenceInfo) &gt; 1">
           <xsl:element name="licenseInfo" namespace="{$NEW_PROFILE_NS}">
