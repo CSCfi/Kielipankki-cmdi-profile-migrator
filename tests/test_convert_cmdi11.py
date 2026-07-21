@@ -261,16 +261,25 @@ class TestLicenceMapping:
         assert self._license_type("CC-ZERO") == "CC0"
 
     def test_clarin_pub(self):
-        """CLARIN_PUB -> CLARIN PUB."""
-        assert self._license_type("CLARIN_PUB") == "CLARIN PUB"
+        """CLARIN_PUB is ambiguous and gets a TODO marker."""
+        assert (
+            self._license_type("CLARIN_PUB")
+            == "TODO: ambiguous value CLARIN_PUB in original"
+        )
 
     def test_clarin_aca(self):
-        """CLARIN_ACA -> CLARIN ACA with minimum required modifiers."""
-        assert self._license_type("CLARIN_ACA") == "CLARIN ACA +ID +BY +NORED"
+        """CLARIN_ACA is ambiguous and gets a TODO marker."""
+        assert (
+            self._license_type("CLARIN_ACA")
+            == "TODO: ambiguous value CLARIN_ACA in original"
+        )
 
     def test_clarin_res(self):
-        """CLARIN_RES -> CLARIN RES with minimum required modifiers."""
-        assert self._license_type("CLARIN_RES") == "CLARIN RES +ID +PLAN +BY +NORED"
+        """CLARIN_RES is ambiguous and gets a TODO marker."""
+        assert (
+            self._license_type("CLARIN_RES")
+            == "TODO: ambiguous value CLARIN_RES in original"
+        )
 
     def test_unknown_gets_prefix(self):
         """Unmapped values get the :: prefix so no data is lost."""
@@ -283,7 +292,7 @@ class TestLicenceMapping:
         assert url is not None
         assert "creativecommons.org" in url.text
 
-    def test_unknown_licence_gets_stub_license_link(self):
-        """Unmapped licences get a stub licenseLink (licenseLink is required, minOccurs=1)."""
+    def test_unknown_licence_has_no_license_link(self):
+        """Unmapped licences produce no licenseLink"""
         root = _convert_and_parse(_record_with_licence("underNegotiation"))
-        assert root.find(f".//{_ns('licenseLink')}") is not None
+        assert root.find(f".//{_ns('licenseLink')}") is None

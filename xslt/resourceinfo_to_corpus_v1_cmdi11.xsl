@@ -389,14 +389,6 @@
     </xsl:element>
   </xsl:template>
 
-  <xsl:template name="stub-license-link">
-    <xsl:element name="licenseLink" namespace="{$NEW_PROFILE_NS}">
-      <xsl:element name="link" namespace="{$NEW_PROFILE_NS}">
-        <xsl:element name="url" namespace="{$NEW_PROFILE_NS}">https://www.kielipankki.fi/support/klarin-kayttolupasopimukset/</xsl:element>
-      </xsl:element>
-    </xsl:element>
-  </xsl:template>
-
   <xsl:template name="stub-corpus-info">
     <xsl:element name="corpusInfo" namespace="{$NEW_PROFILE_NS}">
       <xsl:element name="resourceType" namespace="{$NEW_PROFILE_NS}">corpus</xsl:element>
@@ -505,10 +497,10 @@
       <xsl:when test="$val = 'CC-BY-ND'">https://creativecommons.org/licenses/by-nd/4.0/</xsl:when>
       <xsl:when test="$val = 'CC-BY-SA'">https://creativecommons.org/licenses/by-sa/4.0/</xsl:when>
       <xsl:when test="$val = 'CC-ZERO'">https://creativecommons.org/publicdomain/zero/1.0/</xsl:when>
-      <xsl:when test="$val = 'CLARIN_PUB'">https://www.kielipankki.fi/support/klarin-kayttolupasopimukset/</xsl:when>
-      <xsl:when test="$val = 'CLARIN_ACA'">https://www.kielipankki.fi/support/klarin-kayttolupasopimukset/</xsl:when>
-      <xsl:when test="$val = 'CLARIN_ACA-NC'">https://www.kielipankki.fi/support/klarin-kayttolupasopimukset/</xsl:when>
-      <xsl:when test="$val = 'CLARIN_RES'">https://www.kielipankki.fi/support/klarin-kayttolupasopimukset/</xsl:when>
+      <xsl:when test="$val = 'CLARIN_PUB'">TODO: unknown license url</xsl:when>
+      <xsl:when test="$val = 'CLARIN_ACA'">TODO: unknown license url</xsl:when>
+      <xsl:when test="$val = 'CLARIN_ACA-NC'">TODO: unknown license url</xsl:when>
+      <xsl:when test="$val = 'CLARIN_RES'">TODO: unknown license url</xsl:when>
     </xsl:choose>
   </xsl:template>
 
