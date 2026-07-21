@@ -177,14 +177,16 @@
           </xsl:element>
         </xsl:for-each>
       </xsl:element>
-      <!-- licenseInfo is required (min=1); max=1 so only take first licenceInfo -->
+      <!-- exactly one licenseInfo is required: add stub for other cases  -->
       <xsl:choose>
-        <xsl:when test="cmd11:licenceInfo">
-          <xsl:apply-templates select="cmd11:licenceInfo[1]"/>
+        <xsl:when test="count(cmd11:licenceInfo) &gt; 1">
+          <xsl:element name="licenseInfo" namespace="{$NEW_PROFILE_NS}">
+            <xsl:element name="licenseType" namespace="{$NEW_PROFILE_NS}">TODO: multiple licenceInfo, resolve manually</xsl:element>
+          </xsl:element>
         </xsl:when>
-        <xsl:otherwise>
-          <xsl:call-template name="stub-license-info"/>
-        </xsl:otherwise>
+        <xsl:when test="cmd11:licenceInfo">
+          <xsl:apply-templates select="cmd11:licenceInfo"/>
+        </xsl:when>
       </xsl:choose>
       <xsl:element name="copyrightInfo" namespace="{$NEW_PROFILE_NS}">
         <xsl:element name="copyrightStatus" namespace="{$NEW_PROFILE_NS}">unknown</xsl:element>
@@ -405,13 +407,6 @@
   <xsl:template match="cmd11:Res1|cmd11:Res2">
     <xsl:element name="Resource" namespace="{$ENVELOPE_NS}">
       <xsl:apply-templates select="@*|node()"/>
-    </xsl:element>
-  </xsl:template>
-
-  <xsl:template name="stub-license-info">
-    <xsl:element name="licenseInfo" namespace="{$NEW_PROFILE_NS}">
-      <xsl:element name="licenseType" namespace="{$NEW_PROFILE_NS}">:: unknown</xsl:element>
-      <xsl:call-template name="stub-license-link"/>
     </xsl:element>
   </xsl:template>
 
