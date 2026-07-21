@@ -214,50 +214,41 @@
   <!-- licenceInfo -> licenseInfo: remap licence values, migrate rights holders -->
   <xsl:template match="cmd11:licenceInfo" priority="2">
     <xsl:element name="licenseInfo" namespace="{$NEW_PROFILE_NS}">
-      <!-- licenseType (min=1) and licenseLink (min=1) required; add stubs if no licence -->
-      <xsl:choose>
-        <xsl:when test="cmd11:licence">
-          <xsl:for-each select="cmd11:licence">
-            <xsl:element name="licenseType" namespace="{$NEW_PROFILE_NS}">
-              <xsl:call-template name="map-licence">
-                <xsl:with-param name="val" select="."/>
-              </xsl:call-template>
-            </xsl:element>
-          </xsl:for-each>
-          <xsl:for-each select="cmd11:licence">
-            <xsl:variable name="url">
-              <xsl:call-template name="licence-url">
-                <xsl:with-param name="val" select="."/>
-              </xsl:call-template>
-            </xsl:variable>
-            <xsl:if test="$url != ''">
-              <xsl:element name="licenseLink" namespace="{$NEW_PROFILE_NS}">
-                <xsl:element name="link" namespace="{$NEW_PROFILE_NS}">
-                  <xsl:element name="url" namespace="{$NEW_PROFILE_NS}">
-                    <xsl:value-of select="$url"/>
-                  </xsl:element>
-                </xsl:element>
+      <xsl:for-each select="cmd11:licence">
+        <xsl:element name="licenseType" namespace="{$NEW_PROFILE_NS}">
+          <xsl:call-template name="map-licence">
+            <xsl:with-param name="val" select="."/>
+          </xsl:call-template>
+        </xsl:element>
+      </xsl:for-each>
+      <xsl:for-each select="cmd11:licence">
+        <xsl:variable name="url">
+          <xsl:call-template name="licence-url">
+            <xsl:with-param name="val" select="."/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:if test="$url != ''">
+          <xsl:element name="licenseLink" namespace="{$NEW_PROFILE_NS}">
+            <xsl:element name="link" namespace="{$NEW_PROFILE_NS}">
+              <xsl:element name="url" namespace="{$NEW_PROFILE_NS}">
+                <xsl:value-of select="$url"/>
               </xsl:element>
-            </xsl:if>
-          </xsl:for-each>
-          <!-- licenseLink is also required (min=1); if all licence values lacked a URL, add stub -->
-          <xsl:variable name="any-url">
-            <xsl:for-each select="cmd11:licence">
-              <xsl:variable name="u">
-                <xsl:call-template name="licence-url"><xsl:with-param name="val" select="."/></xsl:call-template>
-              </xsl:variable>
-              <xsl:if test="$u != ''">y</xsl:if>
-            </xsl:for-each>
+            </xsl:element>
+          </xsl:element>
+        </xsl:if>
+      </xsl:for-each>
+      <!-- licenseLink is also required (min=1); if all licence values lacked a URL, add stub -->
+      <xsl:variable name="any-url">
+        <xsl:for-each select="cmd11:licence">
+          <xsl:variable name="u">
+            <xsl:call-template name="licence-url"><xsl:with-param name="val" select="."/></xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$any-url = ''">
-            <xsl:call-template name="stub-license-link"/>
-          </xsl:if>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:element name="licenseType" namespace="{$NEW_PROFILE_NS}">:: unknown</xsl:element>
-          <xsl:call-template name="stub-license-link"/>
-        </xsl:otherwise>
-      </xsl:choose>
+          <xsl:if test="$u != ''">y</xsl:if>
+        </xsl:for-each>
+      </xsl:variable>
+      <xsl:if test="$any-url = ''">
+        <xsl:call-template name="stub-license-link"/>
+      </xsl:if>
       <xsl:apply-templates select="cmd11:distributionRightsHolderPerson"/>
       <xsl:apply-templates select="cmd11:distributionRightsHolderOrganization"/>
     </xsl:element>
