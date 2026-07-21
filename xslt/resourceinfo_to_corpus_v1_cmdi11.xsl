@@ -237,18 +237,6 @@
           </xsl:element>
         </xsl:if>
       </xsl:for-each>
-      <!-- licenseLink is also required (min=1); if all licence values lacked a URL, add stub -->
-      <xsl:variable name="any-url">
-        <xsl:for-each select="cmd11:licence">
-          <xsl:variable name="u">
-            <xsl:call-template name="licence-url"><xsl:with-param name="val" select="."/></xsl:call-template>
-          </xsl:variable>
-          <xsl:if test="$u != ''">y</xsl:if>
-        </xsl:for-each>
-      </xsl:variable>
-      <xsl:if test="$any-url = ''">
-        <xsl:call-template name="stub-license-link"/>
-      </xsl:if>
       <xsl:apply-templates select="cmd11:distributionRightsHolderPerson"/>
       <xsl:apply-templates select="cmd11:distributionRightsHolderOrganization"/>
     </xsl:element>
