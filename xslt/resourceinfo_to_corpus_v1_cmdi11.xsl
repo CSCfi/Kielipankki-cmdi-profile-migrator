@@ -483,10 +483,10 @@
       <xsl:when test="$val = 'CC-BY-ND'">CC BY-ND</xsl:when>
       <xsl:when test="$val = 'CC-BY-SA'">CC BY-SA</xsl:when>
       <xsl:when test="$val = 'CC-ZERO'">CC0</xsl:when>
-      <xsl:when test="$val = 'CLARIN_PUB'">CLARIN PUB</xsl:when>
-      <xsl:when test="$val = 'CLARIN_ACA'">CLARIN ACA +ID +BY +NORED</xsl:when>
-      <xsl:when test="$val = 'CLARIN_ACA-NC'">CLARIN ACA +ID +BY +NC +NORED</xsl:when>
-      <xsl:when test="$val = 'CLARIN_RES'">CLARIN RES +ID +PLAN +BY +NORED</xsl:when>
+      <xsl:when test="$val = 'CLARIN_PUB'">TODO: ambiguous value CLARIN_PUB in original</xsl:when>
+      <xsl:when test="$val = 'CLARIN_ACA'">TODO: ambiguous value CLARIN_ACA in original</xsl:when>
+      <xsl:when test="$val = 'CLARIN_ACA-NC'">TODO: ambiguous value CLARIN_ACA-NC in original</xsl:when>
+      <xsl:when test="$val = 'CLARIN_RES'">TODO: ambiguous value CLARIN_RES in original</xsl:when>
       <xsl:when test="$val = 'AGPL'">AGPL</xsl:when>
       <xsl:when test="$val = 'GPL'">GPL</xsl:when>
       <xsl:when test="$val = 'LGPL'">LGPL</xsl:when>
