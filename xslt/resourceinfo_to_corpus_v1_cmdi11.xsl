@@ -362,7 +362,7 @@
 
   <xsl:template match="cmd11:iprHolderOrganization" priority="2">
     <xsl:element name="rightholderOrganization" namespace="{$NEW_PROFILE_NS}">
-      <xsl:element name="role" namespace="{$NEW_PROFILE_NS}">rightholder</xsl:element>
+      <xsl:element name="role" namespace="{$NEW_PROFILE_NS}">rightHolder</xsl:element>
       <xsl:apply-templates select="cmd11:organizationInfo"/>
     </xsl:element>
   </xsl:template>

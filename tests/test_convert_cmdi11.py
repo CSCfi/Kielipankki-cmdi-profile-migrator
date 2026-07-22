@@ -349,13 +349,25 @@ class TestIprHolderConversion:
         root = _convert_and_parse(_RECORD_WITH_IPR_HOLDERS)
         assert root.find(f".//{_ns('rightholderOrganization')}") is not None
 
-    def test_rightholder_role_value(self):
-        """Role value is remapped from iprHolder to rightholder."""
+    def test_rightholder_person_role_value(self):
+        """Person role value is rightholder.
+
+        The profile uses inconsistent casing for persons vs organisations;
+        this is likely a temporary issue in the profile and may be unified later.
+        """
         root = _convert_and_parse(_RECORD_WITH_IPR_HOLDERS)
-        for el in root.findall(f".//{_ns('rightholderPerson')}") + root.findall(
-            f".//{_ns('rightholderOrganization')}"
-        ):
+        for el in root.findall(f".//{_ns('rightholderPerson')}"):
             assert el.find(_ns("role")).text == "rightholder"
+
+    def test_rightholder_organization_role_value(self):
+        """Organisation role value is rightHolder.
+
+        The profile uses inconsistent casing for persons vs organisations;
+        this is likely a temporary issue in the profile and may be unified later.
+        """
+        root = _convert_and_parse(_RECORD_WITH_IPR_HOLDERS)
+        for el in root.findall(f".//{_ns('rightholderOrganization')}"):
+            assert el.find(_ns("role")).text == "rightHolder"
 
     def test_original_ipr_holder_absent(self):
         root = _convert_and_parse(_RECORD_WITH_IPR_HOLDERS)
