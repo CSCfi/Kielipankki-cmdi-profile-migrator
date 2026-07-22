@@ -296,3 +296,68 @@ class TestLicenceMapping:
         """Unmapped licences produce no licenseLink"""
         root = _convert_and_parse(_record_with_licence("underNegotiation"))
         assert root.find(f".//{_ns('licenseLink')}") is None
+
+
+_RECORD_WITH_IPR_HOLDERS = f"""<?xml version='1.0' encoding='UTF-8'?>
+<CMD xmlns="{CMD_NS}" CMDVersion="1.1">
+  <Header><MdProfile>{OLD_PROFILE}</MdProfile></Header>
+  <Resources><ResourceProxyList/></Resources>
+  <Components>
+    <resourceInfo>
+      <identificationInfo ComponentId="clarin.eu:cr1:c_1349361150743">
+        <resourceName xml:lang="en">Test</resourceName>
+        <description xml:lang="en">Test.</description>
+      </identificationInfo>
+      <distributionInfo ComponentId="clarin.eu:cr1:c_1352813745459">
+        <availability>available-unrestrictedUse</availability>
+        <licenceInfo ComponentId="clarin.eu:cr1:c_1352813745464">
+          <licence>CC-BY</licence>
+        </licenceInfo>
+        <iprHolder ComponentId="clarin.eu:cr1:c_1361876010641">
+          <role>iprHolder</role>
+          <personInfo ComponentId="clarin.eu:cr1:c_1349361150746">
+            <surname xml:lang="en">Smith</surname>
+            <communicationInfo ComponentId="clarin.eu:cr1:c_1352813745460">
+              <email>smith@example.com</email>
+            </communicationInfo>
+          </personInfo>
+        </iprHolder>
+        <iprHolderOrganization ComponentId="clarin.eu:cr1:c_1361876010642">
+          <role>iprHolder</role>
+          <organizationInfo ComponentId="clarin.eu:cr1:c_1352813745461">
+            <organizationName xml:lang="en">Example Org</organizationName>
+            <communicationInfo ComponentId="clarin.eu:cr1:c_1352813745460">
+              <email>org@example.com</email>
+            </communicationInfo>
+          </organizationInfo>
+        </iprHolderOrganization>
+      </distributionInfo>
+    </resourceInfo>
+  </Components>
+</CMD>
+""".encode()
+
+
+class TestIprHolderConversion:
+    """Tests that iprHolder/iprHolderOrganization map to rightholderPerson/Organization."""
+
+    def test_ipr_holder_becomes_rightholder_person(self):
+        root = _convert_and_parse(_RECORD_WITH_IPR_HOLDERS)
+        assert root.find(f".//{_ns('rightholderPerson')}") is not None
+
+    def test_ipr_holder_organization_becomes_rightholder_organization(self):
+        root = _convert_and_parse(_RECORD_WITH_IPR_HOLDERS)
+        assert root.find(f".//{_ns('rightholderOrganization')}") is not None
+
+    def test_rightholder_role_value(self):
+        """Role value is remapped from iprHolder to rightholder."""
+        root = _convert_and_parse(_RECORD_WITH_IPR_HOLDERS)
+        for el in root.findall(f".//{_ns('rightholderPerson')}") + root.findall(
+            f".//{_ns('rightholderOrganization')}"
+        ):
+            assert el.find(_ns("role")).text == "rightholder"
+
+    def test_original_ipr_holder_absent(self):
+        root = _convert_and_parse(_RECORD_WITH_IPR_HOLDERS)
+        assert root.find(f".//{_ns('iprHolder')}") is None
+        assert root.find(f".//{_ns('iprHolderOrganization')}") is None

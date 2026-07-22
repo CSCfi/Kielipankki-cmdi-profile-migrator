@@ -194,6 +194,8 @@
           <xsl:text>Copyright status not specified in original record.</xsl:text>
         </xsl:element>
       </xsl:element>
+      <xsl:apply-templates select="cmd11:iprHolder"/>
+      <xsl:apply-templates select="cmd11:iprHolderOrganization"/>
     </xsl:element>
   </xsl:template>
 
@@ -347,6 +349,21 @@
         </xsl:element>
         <xsl:element name="fundingType" namespace="{$NEW_PROFILE_NS}">other</xsl:element>
       </xsl:element>
+    </xsl:element>
+  </xsl:template>
+
+  <!-- iprHolder/iprHolderOrganization -> rightholderPerson/rightholderOrganization -->
+  <xsl:template match="cmd11:iprHolder" priority="2">
+    <xsl:element name="rightholderPerson" namespace="{$NEW_PROFILE_NS}">
+      <xsl:element name="role" namespace="{$NEW_PROFILE_NS}">rightholder</xsl:element>
+      <xsl:apply-templates select="cmd11:personInfo"/>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="cmd11:iprHolderOrganization" priority="2">
+    <xsl:element name="rightholderOrganization" namespace="{$NEW_PROFILE_NS}">
+      <xsl:element name="role" namespace="{$NEW_PROFILE_NS}">rightholder</xsl:element>
+      <xsl:apply-templates select="cmd11:organizationInfo"/>
     </xsl:element>
   </xsl:template>
 
