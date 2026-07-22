@@ -279,13 +279,7 @@
         select="ancestor::cmd11:CMD/cmd11:Header/cmd11:MdSelfLink"/>
       <xsl:element name="metadataRecordInfo" namespace="{$NEW_PROFILE_NS}">
         <xsl:element name="MetadataRecordIdentifier" namespace="{$NEW_PROFILE_NS}">
-          <xsl:attribute name="MetadataRecordIdentifierScheme">
-            <xsl:choose>
-              <xsl:when test="starts-with($selflink, 'urn:')">urn</xsl:when>
-              <xsl:when test="starts-with($selflink, 'http://hdl.')">handle</xsl:when>
-              <xsl:otherwise>url</xsl:otherwise>
-            </xsl:choose>
-          </xsl:attribute>
+          <xsl:attribute name="MetadataRecordIdentifierScheme">urn</xsl:attribute>
           <xsl:value-of select="$selflink"/>
         </xsl:element>
       </xsl:element>
