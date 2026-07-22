@@ -236,6 +236,8 @@
           </xsl:element>
         </xsl:if>
       </xsl:for-each>
+      <xsl:apply-templates select="cmd11:licensorPerson"/>
+      <xsl:apply-templates select="cmd11:licensorOrganization"/>
       <xsl:apply-templates select="cmd11:distributionRightsHolderPerson"/>
       <xsl:apply-templates select="cmd11:distributionRightsHolderOrganization"/>
     </xsl:element>
