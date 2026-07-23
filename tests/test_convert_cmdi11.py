@@ -338,6 +338,110 @@ _RECORD_WITH_IPR_HOLDERS = f"""<?xml version='1.0' encoding='UTF-8'?>
 """.encode()
 
 
+_RECORD_WITH_METADATA_CREATOR = f"""<?xml version='1.0' encoding='UTF-8'?>
+<CMD xmlns="{CMD_NS}" CMDVersion="1.1">
+  <Header>
+    <MdSelfLink>urn:nbn:fi:lb-test</MdSelfLink>
+    <MdProfile>{OLD_PROFILE}</MdProfile>
+  </Header>
+  <Resources><ResourceProxyList/></Resources>
+  <Components>
+    <resourceInfo>
+      <identificationInfo ComponentId="clarin.eu:cr1:c_1349361150743">
+        <resourceName xml:lang="en">Test</resourceName>
+        <description xml:lang="en">Test.</description>
+      </identificationInfo>
+      <distributionInfo ComponentId="clarin.eu:cr1:c_1352813745459">
+        <availability>available-unrestrictedUse</availability>
+        <licenceInfo ComponentId="clarin.eu:cr1:c_1352813745464">
+          <licence>CC-BY</licence>
+        </licenceInfo>
+      </distributionInfo>
+      <metadataInfo ComponentId="clarin.eu:cr1:c_1349361150745">
+        <metadataCreationDate>2024-01-01</metadataCreationDate>
+        <metadataCreator ComponentId="clarin.eu:cr1:c_1353678848723">
+          <role>metadataCreator</role>
+          <personInfo ComponentId="clarin.eu:cr1:c_1349361150746">
+            <surname xml:lang="en">Testaaja</surname>
+            <givenName xml:lang="en">Tiina</givenName>
+            <sex>unknown</sex>
+            <communicationInfo ComponentId="clarin.eu:cr1:c_1352813745460">
+              <email>tiina@example.com</email>
+            </communicationInfo>
+          </personInfo>
+        </metadataCreator>
+      </metadataInfo>
+    </resourceInfo>
+  </Components>
+</CMD>
+""".encode()
+
+
+class TestMetadataCreatorConversion:
+    """Tests that metadataCreator is migrated into the new profile structure."""
+
+    def test_metadata_creator_present(self):
+        root = _convert_and_parse(_RECORD_WITH_METADATA_CREATOR)
+        assert root.find(f".//{_ns('metadataCreator')}") is not None
+
+    def test_metadata_creator_surname(self):
+        root = _convert_and_parse(_RECORD_WITH_METADATA_CREATOR)
+        surname = root.find(
+            f".//{_ns('metadataCreator')}/{_ns('personInfo')}/{_ns('surname')}"
+        )
+        assert surname is not None and surname.text == "Testaaja"
+
+    def test_metadata_creator_given_name(self):
+        root = _convert_and_parse(_RECORD_WITH_METADATA_CREATOR)
+        given = root.find(
+            f".//{_ns('metadataCreator')}/{_ns('personInfo')}/{_ns('givenName')}"
+        )
+        assert given is not None and given.text == "Tiina"
+
+    def test_metadata_creator_email_lifted(self):
+        """Email is lifted out of communicationInfo into personInfo directly."""
+        root = _convert_and_parse(_RECORD_WITH_METADATA_CREATOR)
+        email = root.find(
+            f".//{_ns('metadataCreator')}/{_ns('personInfo')}/{_ns('email')}"
+        )
+        assert email is not None and email.text == "tiina@example.com"
+
+    def test_metadata_creator_no_role(self):
+        """New profile's metadataCreator has no role child."""
+        root = _convert_and_parse(_RECORD_WITH_METADATA_CREATOR)
+        creator = root.find(f".//{_ns('metadataCreator')}")
+        assert creator.find(_ns("role")) is None
+
+    def test_metadata_creator_no_communication_info(self):
+        """communicationInfo wrapper is not present in new metadataCreator/personInfo."""
+        root = _convert_and_parse(_RECORD_WITH_METADATA_CREATOR)
+        assert (
+            root.find(f".//{_ns('metadataCreator')}//{_ns('communicationInfo')}")
+            is None
+        )
+
+    def test_multiple_creators_get_todo(self):
+        """Multiple metadataCreators produce a single TODO marker instead of silently dropping."""
+        two_creators = _RECORD_WITH_METADATA_CREATOR.replace(
+            b"</metadataCreator>",
+            b"""</metadataCreator>
+        <metadataCreator ComponentId="clarin.eu:cr1:c_1353678848723">
+          <role>metadataCreator</role>
+          <personInfo ComponentId="clarin.eu:cr1:c_1349361150746">
+            <surname xml:lang="en">Second</surname>
+            <givenName xml:lang="en">Person</givenName>
+          </personInfo>
+        </metadataCreator>""",
+            1,
+        )
+        root = _convert_and_parse(two_creators)
+        assert len(root.findall(f".//{_ns('metadataCreator')}")) == 1
+        surname = root.find(
+            f".//{_ns('metadataCreator')}/{_ns('personInfo')}/{_ns('surname')}"
+        )
+        assert surname is not None and surname.text.startswith("TODO:")
+
+
 class TestIprHolderConversion:
     """Tests that iprHolder/iprHolderOrganization map to rightholderPerson/Organization."""
 

@@ -245,9 +245,9 @@
     </xsl:element>
   </xsl:template>
 
-  <!-- metadataInfo: drop metadataLanguageName/Id and metadataCreator (latter
-       requires sourceOfMetadataRecord before it, which has no old-profile source);
-       add metadataRevisionLog (from revision) and metadataRecordInfo (from MdSelfLink) -->
+  <!-- metadataInfo: drop fields no longer present in the new profile, add
+  metadataRevisionLog (from revision) and metadataRecordInfo (from
+  MdSelfLink); migrate metadataCreator -->
   <xsl:template match="cmd11:metadataInfo" priority="2">
     <xsl:element name="metadataInfo" namespace="{$NEW_PROFILE_NS}">
       <xsl:apply-templates select="cmd11:metadataCreationDate"/>
@@ -282,6 +282,29 @@
           <xsl:attribute name="MetadataRecordIdentifierScheme">urn</xsl:attribute>
           <xsl:value-of select="$selflink"/>
         </xsl:element>
+      </xsl:element>
+      <xsl:choose>
+        <xsl:when test="count(cmd11:metadataCreator) &gt; 1">
+          <xsl:element name="metadataCreator" namespace="{$NEW_PROFILE_NS}">
+            <xsl:element name="personInfo" namespace="{$NEW_PROFILE_NS}">
+              <xsl:element name="surname" namespace="{$NEW_PROFILE_NS}">TODO: multiple metadataCreator, resolve manually</xsl:element>
+            </xsl:element>
+          </xsl:element>
+        </xsl:when>
+        <xsl:when test="cmd11:metadataCreator">
+          <xsl:apply-templates select="cmd11:metadataCreator"/>
+        </xsl:when>
+      </xsl:choose>
+    </xsl:element>
+  </xsl:template>
+
+  <!-- metadataCreator: select relevant personInfo fields -->
+  <xsl:template match="cmd11:metadataCreator" priority="3">
+    <xsl:element name="metadataCreator" namespace="{$NEW_PROFILE_NS}">
+      <xsl:element name="personInfo" namespace="{$NEW_PROFILE_NS}">
+        <xsl:apply-templates select="cmd11:personInfo/cmd11:surname"/>
+        <xsl:apply-templates select="cmd11:personInfo/cmd11:givenName"/>
+        <xsl:apply-templates select="cmd11:personInfo/cmd11:communicationInfo/cmd11:email"/>
       </xsl:element>
     </xsl:element>
   </xsl:template>
