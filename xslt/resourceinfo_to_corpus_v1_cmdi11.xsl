@@ -104,6 +104,7 @@
       <xsl:apply-templates select="cmd11:contactPerson"/>
       <xsl:apply-templates select="cmd11:metadataInfo"/>
       <xsl:apply-templates select="cmd11:versionInfo"/>
+      <xsl:apply-templates select="cmd11:usageInfo"/>
       <xsl:apply-templates select="cmd11:resourceDocumentationInfo"/>
       <!-- resourceCreationInfo is required in the new profile -->
       <xsl:choose>

@@ -270,6 +270,107 @@ class TestVersionInfo:
         assert root.find(f".//{_ns('versionInfo')}") is None
 
 
+_RECORD_WITH_USAGE_INFO = f"""<?xml version='1.0' encoding='UTF-8'?>
+<CMD xmlns="{CMD_NS}" CMDVersion="1.1">
+  <Header><MdProfile>{OLD_PROFILE}</MdProfile></Header>
+  <Resources><ResourceProxyList/></Resources>
+  <Components>
+    <resourceInfo>
+      <identificationInfo ComponentId="clarin.eu:cr1:c_1349361150743">
+        <resourceName xml:lang="en">Test</resourceName>
+        <description xml:lang="en">Test.</description>
+      </identificationInfo>
+      <distributionInfo ComponentId="clarin.eu:cr1:c_1352813745459">
+        <availability>available-unrestrictedUse</availability>
+        <licenceInfo ComponentId="clarin.eu:cr1:c_1352813745464">
+          <licence>CC-BY</licence>
+        </licenceInfo>
+      </distributionInfo>
+      <usageInfo ComponentId="clarin.eu:cr1:c_1353678848793">
+        <accessTool ComponentId="clarin.eu:cr1:c_1353678848794">
+          <targetResourceNameURI>http://example.com/tool</targetResourceNameURI>
+        </accessTool>
+        <resourceAssociatedWith ComponentId="clarin.eu:cr1:c_1353678848795">
+          <targetResourceNameURI>http://example.com/associated</targetResourceNameURI>
+        </resourceAssociatedWith>
+        <foreseenUseInfo ComponentId="clarin.eu:cr1:c_1353678848796">
+          <foreseenUse>humanUse</foreseenUse>
+        </foreseenUseInfo>
+        <actualUseInfo ComponentId="clarin.eu:cr1:c_1353678848797">
+          <actualUse>linguisticResearch</actualUse>
+        </actualUseInfo>
+        <usageReportStructured ComponentId="clarin.eu:cr1:c_1353678848798">
+          <role>usageReport</role>
+          <documentInfo ComponentId="clarin.eu:cr1:c_1353678848788">
+            <documentType>other</documentType>
+            <title xml:lang="en">Usage Report</title>
+          </documentInfo>
+        </usageReportStructured>
+        <usageReportUnstructured ComponentId="clarin.eu:cr1:c_1353678848799">
+          <role>usageReport</role>
+          <documentUnstructured>Used in project X.</documentUnstructured>
+        </usageReportUnstructured>
+        <derivedResource ComponentId="clarin.eu:cr1:c_1353678848800">
+          <targetResourceNameURI>http://example.com/derived</targetResourceNameURI>
+        </derivedResource>
+        <usageProject ComponentId="clarin.eu:cr1:c_1353678848801">
+          <role>usageProject</role>
+          <projectInfo ComponentId="clarin.eu:cr1:c_1353678848802">
+            <projectName xml:lang="en">Test Project</projectName>
+            <fundingType>other</fundingType>
+          </projectInfo>
+        </usageProject>
+      </usageInfo>
+    </resourceInfo>
+  </Components>
+</CMD>
+""".encode()
+
+
+class TestUsageInfo:
+    """Tests for usageInfo pass-through conversion."""
+
+    def test_usage_info_present(self):
+        root = _convert_and_parse(_RECORD_WITH_USAGE_INFO)
+        assert root.find(f".//{_ns('usageInfo')}") is not None
+
+    def test_access_tool(self):
+        root = _convert_and_parse(_RECORD_WITH_USAGE_INFO)
+        assert root.find(f".//{_ns('accessTool')}") is not None
+
+    def test_resource_associated_with(self):
+        root = _convert_and_parse(_RECORD_WITH_USAGE_INFO)
+        assert root.find(f".//{_ns('resourceAssociatedWith')}") is not None
+
+    def test_foreseen_use_info(self):
+        root = _convert_and_parse(_RECORD_WITH_USAGE_INFO)
+        assert root.find(f".//{_ns('foreseenUseInfo')}") is not None
+
+    def test_actual_use_info(self):
+        root = _convert_and_parse(_RECORD_WITH_USAGE_INFO)
+        assert root.find(f".//{_ns('actualUseInfo')}") is not None
+
+    def test_usage_report_structured(self):
+        root = _convert_and_parse(_RECORD_WITH_USAGE_INFO)
+        assert root.find(f".//{_ns('usageReportStructured')}") is not None
+
+    def test_usage_report_unstructured(self):
+        root = _convert_and_parse(_RECORD_WITH_USAGE_INFO)
+        assert root.find(f".//{_ns('usageReportUnstructured')}") is not None
+
+    def test_derived_resource(self):
+        root = _convert_and_parse(_RECORD_WITH_USAGE_INFO)
+        assert root.find(f".//{_ns('derivedResource')}") is not None
+
+    def test_usage_project(self):
+        root = _convert_and_parse(_RECORD_WITH_USAGE_INFO)
+        assert root.find(f".//{_ns('usageProject')}") is not None
+
+    def test_usage_info_absent_when_not_in_source(self):
+        root = _convert_and_parse()
+        assert root.find(f".//{_ns('usageInfo')}") is None
+
+
 class TestAvailabilityMapping:
     """Tests for availability value mapping."""
 
