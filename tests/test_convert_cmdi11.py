@@ -211,6 +211,65 @@ class TestDistributionInfo:
         )
 
 
+_RECORD_WITH_VERSION_INFO = f"""<?xml version='1.0' encoding='UTF-8'?>
+<CMD xmlns="{CMD_NS}" CMDVersion="1.1">
+  <Header><MdProfile>{OLD_PROFILE}</MdProfile></Header>
+  <Resources><ResourceProxyList/></Resources>
+  <Components>
+    <resourceInfo>
+      <identificationInfo ComponentId="clarin.eu:cr1:c_1349361150743">
+        <resourceName xml:lang="en">Test</resourceName>
+        <description xml:lang="en">Test.</description>
+      </identificationInfo>
+      <distributionInfo ComponentId="clarin.eu:cr1:c_1352813745459">
+        <availability>available-unrestrictedUse</availability>
+        <licenceInfo ComponentId="clarin.eu:cr1:c_1352813745464">
+          <licence>CC-BY</licence>
+        </licenceInfo>
+      </distributionInfo>
+      <versionInfo ComponentId="clarin.eu:cr1:c_1353678848783">
+        <version>2.1</version>
+        <revision>Added new annotations.</revision>
+        <lastDateUpdated>2024-03-15</lastDateUpdated>
+        <updateFrequency>irregular</updateFrequency>
+      </versionInfo>
+    </resourceInfo>
+  </Components>
+</CMD>
+""".encode()
+
+
+class TestVersionInfo:
+    """Tests for versionInfo pass-through conversion."""
+
+    def test_version_info_present(self):
+        root = _convert_and_parse(_RECORD_WITH_VERSION_INFO)
+        assert root.find(f".//{_ns('versionInfo')}") is not None
+
+    def test_version_value(self):
+        root = _convert_and_parse(_RECORD_WITH_VERSION_INFO)
+        assert root.find(f".//{_ns('versionInfo')}/{_ns('version')}").text == "2.1"
+
+    def test_revision(self):
+        root = _convert_and_parse(_RECORD_WITH_VERSION_INFO)
+        el = root.find(f".//{_ns('versionInfo')}/{_ns('revision')}")
+        assert el.text == "Added new annotations."
+
+    def test_last_date_updated(self):
+        root = _convert_and_parse(_RECORD_WITH_VERSION_INFO)
+        el = root.find(f".//{_ns('versionInfo')}/{_ns('lastDateUpdated')}")
+        assert el.text == "2024-03-15"
+
+    def test_update_frequency(self):
+        root = _convert_and_parse(_RECORD_WITH_VERSION_INFO)
+        el = root.find(f".//{_ns('versionInfo')}/{_ns('updateFrequency')}")
+        assert el.text == "irregular"
+
+    def test_version_info_absent_when_not_in_source(self):
+        root = _convert_and_parse()
+        assert root.find(f".//{_ns('versionInfo')}") is None
+
+
 class TestAvailabilityMapping:
     """Tests for availability value mapping."""
 
