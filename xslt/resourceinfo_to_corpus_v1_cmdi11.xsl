@@ -96,7 +96,7 @@
     </xsl:element>
   </xsl:template>
 
-  <!-- Root component: explicit child ordering; generate required elements when absent -->
+  <!-- Root component: explicit child ordering -->
   <xsl:template match="cmd11:resourceInfo" priority="2">
     <xsl:element name="resourceInfo-corpus-v1" namespace="{$NEW_PROFILE_NS}">
       <xsl:apply-templates select="cmd11:identificationInfo"/>
@@ -106,15 +106,7 @@
       <xsl:apply-templates select="cmd11:versionInfo"/>
       <xsl:apply-templates select="cmd11:usageInfo"/>
       <xsl:apply-templates select="cmd11:resourceDocumentationInfo"/>
-      <!-- resourceCreationInfo is required in the new profile -->
-      <xsl:choose>
-        <xsl:when test="cmd11:resourceCreationInfo">
-          <xsl:apply-templates select="cmd11:resourceCreationInfo"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:call-template name="stub-resource-creation-info"/>
-        </xsl:otherwise>
-      </xsl:choose>
+      <xsl:apply-templates select="cmd11:resourceCreationInfo"/>
       <!-- Merge multiple old relationInfo elements into one new-style relationInfo -->
       <xsl:if test="cmd11:relationInfo">
         <xsl:element name="relationInfo" namespace="{$NEW_PROFILE_NS}">
@@ -311,63 +303,39 @@
     </xsl:element>
   </xsl:template>
 
-  <!-- resourceCreationInfo: add stub resourceCreatorOrganization when absent -->
+  <!-- resourceCreationInfo: add todos where required fields cannot be filled properly -->
   <xsl:template match="cmd11:resourceCreationInfo" priority="2">
     <xsl:element name="resourceCreationInfo" namespace="{$NEW_PROFILE_NS}">
       <xsl:apply-templates select="cmd11:creationStartDate"/>
       <xsl:apply-templates select="cmd11:creationEndDate"/>
-      <!-- max=1 for both person and org in new profile; take only first -->
       <xsl:choose>
-        <xsl:when test="cmd11:resourceCreatorPerson">
-          <xsl:apply-templates select="cmd11:resourceCreatorPerson[1]"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:call-template name="stub-creator-person"/>
-        </xsl:otherwise>
-      </xsl:choose>
-      <xsl:choose>
-        <xsl:when test="cmd11:resourceCreatorOrganization">
-          <xsl:apply-templates select="cmd11:resourceCreatorOrganization[1]"/>
-        </xsl:when>
-        <xsl:when test="cmd11:resourceCreatorPerson[1]//cmd11:affiliation[1]/cmd11:organizationInfo">
-          <xsl:element name="resourceCreatorOrganization" namespace="{$NEW_PROFILE_NS}">
+        <xsl:when test="count(cmd11:resourceCreatorPerson) &gt; 1">
+          <xsl:element name="resourceCreatorPerson" namespace="{$NEW_PROFILE_NS}">
             <xsl:element name="role" namespace="{$NEW_PROFILE_NS}">resourceCreator</xsl:element>
-            <xsl:apply-templates
-              select="cmd11:resourceCreatorPerson[1]//cmd11:affiliation[1]/cmd11:organizationInfo[1]"/>
+            <xsl:element name="personInfo" namespace="{$NEW_PROFILE_NS}">
+              <xsl:element name="surname" namespace="{$NEW_PROFILE_NS}">TODO: multiple resourceCreatorPerson, resolve manually</xsl:element>
+            </xsl:element>
           </xsl:element>
         </xsl:when>
-        <xsl:otherwise>
-          <xsl:call-template name="stub-creator-organization"/>
-        </xsl:otherwise>
+        <xsl:when test="cmd11:resourceCreatorPerson">
+          <xsl:apply-templates select="cmd11:resourceCreatorPerson"/>
+        </xsl:when>
       </xsl:choose>
-      <xsl:call-template name="stub-funding-project"/>
+      <xsl:choose>
+        <xsl:when test="count(cmd11:resourceCreatorOrganization) &gt; 1">
+          <xsl:element name="resourceCreatorOrganization" namespace="{$NEW_PROFILE_NS}">
+            <xsl:element name="role" namespace="{$NEW_PROFILE_NS}">resourceCreator</xsl:element>
+            <xsl:element name="organizationInfo" namespace="{$NEW_PROFILE_NS}">
+              <xsl:element name="organizationName" namespace="{$NEW_PROFILE_NS}">TODO: multiple resourceCreatorOrganization, resolve manually</xsl:element>
+            </xsl:element>
+          </xsl:element>
+        </xsl:when>
+        <xsl:when test="cmd11:resourceCreatorOrganization">
+          <xsl:apply-templates select="cmd11:resourceCreatorOrganization"/>
+        </xsl:when>
+      </xsl:choose>
+      <xsl:apply-templates select="cmd11:fundingProject"/>
       <xsl:element name="resourceRevisionLog" namespace="{$NEW_PROFILE_NS}"/>
-    </xsl:element>
-  </xsl:template>
-
-  <!-- ============================================================
-       STUB GENERATORS for required elements missing from source
-       ============================================================ -->
-
-  <xsl:template name="stub-resource-creation-info">
-    <xsl:element name="resourceCreationInfo" namespace="{$NEW_PROFILE_NS}">
-      <xsl:call-template name="stub-creator-person"/>
-      <xsl:call-template name="stub-creator-organization"/>
-      <xsl:call-template name="stub-funding-project"/>
-      <xsl:element name="resourceRevisionLog" namespace="{$NEW_PROFILE_NS}"/>
-    </xsl:element>
-  </xsl:template>
-
-  <xsl:template name="stub-funding-project">
-    <xsl:element name="fundingProject" namespace="{$NEW_PROFILE_NS}">
-      <xsl:element name="role" namespace="{$NEW_PROFILE_NS}">fundingProject</xsl:element>
-      <xsl:element name="projectInfo" namespace="{$NEW_PROFILE_NS}">
-        <xsl:element name="projectName" namespace="{$NEW_PROFILE_NS}">
-          <xsl:attribute name="xml:lang">en</xsl:attribute>
-          <xsl:text>Unknown</xsl:text>
-        </xsl:element>
-        <xsl:element name="fundingType" namespace="{$NEW_PROFILE_NS}">other</xsl:element>
-      </xsl:element>
     </xsl:element>
   </xsl:template>
 
@@ -430,36 +398,6 @@
     <xsl:element name="corpusInfo" namespace="{$NEW_PROFILE_NS}">
       <xsl:element name="resourceType" namespace="{$NEW_PROFILE_NS}">corpus</xsl:element>
       <xsl:element name="corpusMediaType" namespace="{$NEW_PROFILE_NS}"/>
-    </xsl:element>
-  </xsl:template>
-
-  <xsl:template name="stub-creator-person">
-    <xsl:element name="resourceCreatorPerson" namespace="{$NEW_PROFILE_NS}">
-      <xsl:element name="role" namespace="{$NEW_PROFILE_NS}">resourceCreator</xsl:element>
-      <xsl:element name="personInfo" namespace="{$NEW_PROFILE_NS}">
-        <xsl:element name="surname" namespace="{$NEW_PROFILE_NS}">
-          <xsl:attribute name="xml:lang">en</xsl:attribute>
-          <xsl:text>Unknown</xsl:text>
-        </xsl:element>
-        <xsl:element name="communicationInfo" namespace="{$NEW_PROFILE_NS}">
-          <xsl:element name="email" namespace="{$NEW_PROFILE_NS}">unknown@unknown.example</xsl:element>
-        </xsl:element>
-      </xsl:element>
-    </xsl:element>
-  </xsl:template>
-
-  <xsl:template name="stub-creator-organization">
-    <xsl:element name="resourceCreatorOrganization" namespace="{$NEW_PROFILE_NS}">
-      <xsl:element name="role" namespace="{$NEW_PROFILE_NS}">resourceCreator</xsl:element>
-      <xsl:element name="organizationInfo" namespace="{$NEW_PROFILE_NS}">
-        <xsl:element name="organizationName" namespace="{$NEW_PROFILE_NS}">
-          <xsl:attribute name="xml:lang">en</xsl:attribute>
-          <xsl:text>Unknown</xsl:text>
-        </xsl:element>
-        <xsl:element name="communicationInfo" namespace="{$NEW_PROFILE_NS}">
-          <xsl:element name="email" namespace="{$NEW_PROFILE_NS}">unknown@unknown.example</xsl:element>
-        </xsl:element>
-      </xsl:element>
     </xsl:element>
   </xsl:template>
 

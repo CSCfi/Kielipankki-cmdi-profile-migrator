@@ -636,4 +636,114 @@ class TestIprHolderConversion:
     def test_original_ipr_holder_absent(self):
         root = _convert_and_parse(_RECORD_WITH_IPR_HOLDERS)
         assert root.find(f".//{_ns('iprHolder')}") is None
+
+
+_RECORD_WITH_RESOURCE_CREATION_INFO = f"""<?xml version='1.0' encoding='UTF-8'?>
+<CMD xmlns="{CMD_NS}" CMDVersion="1.1">
+  <Header><MdProfile>{OLD_PROFILE}</MdProfile></Header>
+  <Resources><ResourceProxyList/></Resources>
+  <Components>
+    <resourceInfo>
+      <identificationInfo ComponentId="clarin.eu:cr1:c_1349361150743">
+        <resourceName xml:lang="en">Test</resourceName>
+        <description xml:lang="en">Test.</description>
+      </identificationInfo>
+      <distributionInfo ComponentId="clarin.eu:cr1:c_1352813745459">
+        <availability>available-unrestrictedUse</availability>
+        <licenceInfo ComponentId="clarin.eu:cr1:c_1352813745464">
+          <licence>CC-BY</licence>
+        </licenceInfo>
+      </distributionInfo>
+      <resourceCreationInfo ComponentId="clarin.eu:cr1:c_1355150532303">
+        <resourceCreatorPerson ComponentId="clarin.eu:cr1:c_1361876010645">
+          <role>resourceCreator</role>
+          <personInfo ComponentId="clarin.eu:cr1:c_1349361150746">
+            <surname xml:lang="en">Testaaja</surname>
+            <givenName xml:lang="en">Tiina</givenName>
+            <communicationInfo ComponentId="clarin.eu:cr1:c_1352813745460">
+              <email>tiina@example.com</email>
+            </communicationInfo>
+          </personInfo>
+        </resourceCreatorPerson>
+        <resourceCreatorOrganization ComponentId="clarin.eu:cr1:c_1361876010645">
+          <role>resourceCreator</role>
+          <organizationInfo ComponentId="clarin.eu:cr1:c_1352813745461">
+            <organizationName xml:lang="en">Example University</organizationName>
+            <communicationInfo ComponentId="clarin.eu:cr1:c_1352813745460">
+              <email>info@example.com</email>
+            </communicationInfo>
+          </organizationInfo>
+        </resourceCreatorOrganization>
+        <fundingProject ComponentId="clarin.eu:cr1:c_1361876010647">
+          <role>fundingProject</role>
+          <projectInfo ComponentId="clarin.eu:cr1:c_1353678848782">
+            <projectName xml:lang="en">Test Funding Project</projectName>
+            <fundingType>other</fundingType>
+          </projectInfo>
+        </fundingProject>
+      </resourceCreationInfo>
+    </resourceInfo>
+  </Components>
+</CMD>
+""".encode()
+
+
+class TestResourceCreationInfo:
+    """Tests for resourceCreationInfo conversion."""
+
+    def test_resource_creator_person(self):
+        root = _convert_and_parse(_RECORD_WITH_RESOURCE_CREATION_INFO)
+        assert root.find(f".//{_ns('resourceCreatorPerson')}") is not None
+
+    def test_resource_creator_organization(self):
+        root = _convert_and_parse(_RECORD_WITH_RESOURCE_CREATION_INFO)
+        assert root.find(f".//{_ns('resourceCreatorOrganization')}") is not None
+
+    def test_funding_project(self):
+        root = _convert_and_parse(_RECORD_WITH_RESOURCE_CREATION_INFO)
+        assert root.find(f".//{_ns('fundingProject')}") is not None
+
+    def test_multiple_resource_creator_persons_get_todo(self):
+        two_persons = _RECORD_WITH_RESOURCE_CREATION_INFO.replace(
+            b"</resourceCreatorPerson>",
+            b"""</resourceCreatorPerson>
+        <resourceCreatorPerson ComponentId="clarin.eu:cr1:c_1361876010645">
+          <role>resourceCreator</role>
+          <personInfo ComponentId="clarin.eu:cr1:c_1349361150746">
+            <surname xml:lang="en">Second</surname>
+            <communicationInfo ComponentId="clarin.eu:cr1:c_1352813745460">
+              <email>second@example.com</email>
+            </communicationInfo>
+          </personInfo>
+        </resourceCreatorPerson>""",
+            1,
+        )
+        root = _convert_and_parse(two_persons)
+        assert len(root.findall(f".//{_ns('resourceCreatorPerson')}")) == 1
+        surname = root.find(
+            f".//{_ns('resourceCreatorPerson')}/{_ns('personInfo')}/{_ns('surname')}"
+        )
+        assert surname is not None and surname.text.startswith("TODO:")
+
+    def test_multiple_resource_creator_organizations_get_todo(self):
+        two_orgs = _RECORD_WITH_RESOURCE_CREATION_INFO.replace(
+            b"</resourceCreatorOrganization>",
+            b"""</resourceCreatorOrganization>
+        <resourceCreatorOrganization ComponentId="clarin.eu:cr1:c_1361876010645">
+          <role>resourceCreator</role>
+          <organizationInfo ComponentId="clarin.eu:cr1:c_1352813745461">
+            <organizationName xml:lang="en">Second Org</organizationName>
+            <communicationInfo ComponentId="clarin.eu:cr1:c_1352813745460">
+              <email>second@example.com</email>
+            </communicationInfo>
+          </organizationInfo>
+        </resourceCreatorOrganization>""",
+            1,
+        )
+        root = _convert_and_parse(two_orgs)
+        assert len(root.findall(f".//{_ns('resourceCreatorOrganization')}")) == 1
+        name = root.find(
+            f".//{_ns('resourceCreatorOrganization')}/{_ns('organizationInfo')}/{_ns('organizationName')}"
+        )
+        assert name is not None and name.text.startswith("TODO:")
         assert root.find(f".//{_ns('iprHolderOrganization')}") is None
