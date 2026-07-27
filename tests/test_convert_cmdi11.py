@@ -819,3 +819,13 @@ class TestRelationInfo:
         root = _convert_and_parse(_record_with_relation("Some Corpus Name Without URL"))
         name = root.find(f".//{_ns('relatedResourceName')}")
         assert name is not None and name.text == "Some Corpus Name Without URL"
+
+    def test_trailing_punctuation_stripped_from_name(self):
+        """Trailing comma, semicolon, or colon is stripped from the extracted name."""
+        root = _convert_and_parse(
+            _record_with_relation(
+                "Yle Finnish News Archive 2021, source; http://urn.fi/urn:nbn:fi:lb-2022031703"
+            )
+        )
+        name = root.find(f".//{_ns('relatedResourceName')}")
+        assert name is not None and name.text == "Yle Finnish News Archive 2021, source"

@@ -436,13 +436,31 @@
     <xsl:param name="text"/>
     <xsl:variable name="url"
       select="str:tokenize($text, ' &#9;&#10;')[starts-with(., 'https://') or starts-with(., 'http://')]"/>
+    <xsl:variable name="raw">
+      <xsl:choose>
+        <xsl:when test="$url">
+          <xsl:value-of select="normalize-space(substring-before($text, $url[1]))"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="normalize-space($text)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:call-template name="strip-trailing-punctuation">
+      <xsl:with-param name="text" select="$raw"/>
+    </xsl:call-template>
+  </xsl:template>
+
+  <!-- Strip trailing commas, colons, and semicolons often present in the
+       targetResourceNameURI before the URL. -->
+  <xsl:template name="strip-trailing-punctuation">
+    <xsl:param name="text"/>
+    <xsl:variable name="last" select="substring($text, string-length($text))"/>
     <xsl:choose>
-      <xsl:when test="$url">
-        <xsl:value-of select="normalize-space(substring-before($text, $url[1]))"/>
+      <xsl:when test="$last = ',' or $last = ':' or $last = ';'">
+        <xsl:value-of select="substring($text, 1, string-length($text) - 1)"/>
       </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="normalize-space($text)"/>
-      </xsl:otherwise>
+      <xsl:otherwise><xsl:value-of select="$text"/></xsl:otherwise>
     </xsl:choose>
   </xsl:template>
 
