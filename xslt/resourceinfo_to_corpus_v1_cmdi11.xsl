@@ -140,15 +140,7 @@
           </xsl:for-each>
         </xsl:element>
       </xsl:if>
-      <!-- corpusInfo is required; generate a stub when absent -->
-      <xsl:choose>
-        <xsl:when test="cmd11:corpusInfo">
-          <xsl:apply-templates select="cmd11:corpusInfo"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:call-template name="stub-corpus-info"/>
-        </xsl:otherwise>
-      </xsl:choose>
+      <xsl:apply-templates select="cmd11:corpusInfo"/>
     </xsl:element>
   </xsl:template>
 
@@ -401,13 +393,6 @@
   <xsl:template match="cmd11:Res1|cmd11:Res2">
     <xsl:element name="Resource" namespace="{$ENVELOPE_NS}">
       <xsl:apply-templates select="@*|node()"/>
-    </xsl:element>
-  </xsl:template>
-
-  <xsl:template name="stub-corpus-info">
-    <xsl:element name="corpusInfo" namespace="{$NEW_PROFILE_NS}">
-      <xsl:element name="resourceType" namespace="{$NEW_PROFILE_NS}">corpus</xsl:element>
-      <xsl:element name="corpusMediaType" namespace="{$NEW_PROFILE_NS}"/>
     </xsl:element>
   </xsl:template>
 
