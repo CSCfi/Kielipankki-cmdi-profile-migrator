@@ -19,7 +19,8 @@
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:cmd11="http://www.clarin.eu/cmd/"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    exclude-result-prefixes="xsl cmd11">
+    xmlns:str="http://exslt.org/strings"
+    exclude-result-prefixes="xsl cmd11 str">
 
   <xsl:variable name="ENVELOPE_NS" select="'http://www.clarin.eu/cmd/1'"/>
   <xsl:variable name="NEW_PROFILE_NS"
@@ -113,19 +114,17 @@
           <xsl:for-each select="cmd11:relationInfo">
             <xsl:element name="relation" namespace="{$NEW_PROFILE_NS}">
               <xsl:apply-templates select="cmd11:relationType"/>
-              <xsl:element name="relatedResourceLink" namespace="{$NEW_PROFILE_NS}">
-                <xsl:variable name="nameuri"
-                  select="cmd11:relatedResource/cmd11:targetResourceNameURI"/>
-                <xsl:choose>
-                  <xsl:when test="contains($nameuri, ' https://')">
-                    <xsl:value-of select="concat('https://', substring-after($nameuri, ' https://'))"/>
-                  </xsl:when>
-                  <xsl:when test="contains($nameuri, ' http://')">
-                    <xsl:value-of select="concat('http://', substring-after($nameuri, ' http://'))"/>
-                  </xsl:when>
-                  <xsl:otherwise><xsl:value-of select="$nameuri"/></xsl:otherwise>
-                </xsl:choose>
-              </xsl:element>
+              <xsl:variable name="url">
+                <xsl:call-template name="extract-url">
+                  <xsl:with-param name="text"
+                    select="cmd11:relatedResource/cmd11:targetResourceNameURI"/>
+                </xsl:call-template>
+              </xsl:variable>
+              <xsl:if test="$url != ''">
+                <xsl:element name="relatedResourceLink" namespace="{$NEW_PROFILE_NS}">
+                  <xsl:value-of select="$url"/>
+                </xsl:element>
+              </xsl:if>
             </xsl:element>
           </xsl:for-each>
         </xsl:element>
@@ -399,6 +398,23 @@
       <xsl:element name="resourceType" namespace="{$NEW_PROFILE_NS}">corpus</xsl:element>
       <xsl:element name="corpusMediaType" namespace="{$NEW_PROFILE_NS}"/>
     </xsl:element>
+  </xsl:template>
+
+  <!-- ============================================================
+       HELPER TEMPLATES
+       ============================================================ -->
+
+  <!-- Extract the URL from a targetResourceNameURI value that may contain
+       both free-text and a URL (e.g. "Some Label https://example.com").
+       Tokenizes on whitespace (spaces, tabs, newlines) and picks the first token
+       starting with http(s)://. Returns empty string when no URL token is found. -->
+  <xsl:template name="extract-url">
+    <xsl:param name="text"/>
+    <xsl:variable name="url"
+      select="str:tokenize($text, ' &#9;&#10;')[starts-with(., 'https://') or starts-with(., 'http://')]"/>
+    <xsl:if test="$url">
+      <xsl:value-of select="$url[1]"/>
+    </xsl:if>
   </xsl:template>
 
   <!-- ============================================================

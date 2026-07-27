@@ -747,3 +747,56 @@ class TestResourceCreationInfo:
         )
         assert name is not None and name.text.startswith("TODO:")
         assert root.find(f".//{_ns('iprHolderOrganization')}") is None
+
+
+def _record_with_relation(target_name_uri):
+    """Build a minimal record with a single relationInfo using the given targetResourceNameURI."""
+    return f"""<?xml version='1.0' encoding='UTF-8'?>
+<CMD xmlns="{CMD_NS}" CMDVersion="1.1">
+  <Header><MdProfile>{OLD_PROFILE}</MdProfile></Header>
+  <Resources><ResourceProxyList/></Resources>
+  <Components>
+    <resourceInfo>
+      <identificationInfo ComponentId="clarin.eu:cr1:c_1349361150743">
+        <resourceName xml:lang="en">Test</resourceName>
+        <description xml:lang="en">Test.</description>
+      </identificationInfo>
+      <distributionInfo ComponentId="clarin.eu:cr1:c_1352813745459">
+        <availability>available-unrestrictedUse</availability>
+        <licenceInfo ComponentId="clarin.eu:cr1:c_1352813745464">
+          <licence>CC-BY</licence>
+        </licenceInfo>
+      </distributionInfo>
+      <relationInfo ComponentId="clarin.eu:cr1:c_1355150532307">
+        <relationType>IsPartOf</relationType>
+        <relatedResource ComponentId="clarin.eu:cr1:c_1355150532308">
+          <targetResourceNameURI>{target_name_uri}</targetResourceNameURI>
+        </relatedResource>
+      </relationInfo>
+    </resourceInfo>
+  </Components>
+</CMD>
+""".encode()
+
+
+class TestRelationInfo:
+    """Tests for relationInfo URL extraction."""
+
+    def test_url_extracted_from_mixed_text(self):
+        """URL is extracted when targetResourceNameURI contains label and URL."""
+        root = _convert_and_parse(
+            _record_with_relation("Some Corpus https://example.com/corpus")
+        )
+        link = root.find(f".//{_ns('relatedResourceLink')}")
+        assert link is not None and link.text == "https://example.com/corpus"
+
+    def test_plain_url_kept(self):
+        """A bare URL with no label is kept as-is."""
+        root = _convert_and_parse(_record_with_relation("https://example.com/corpus"))
+        link = root.find(f".//{_ns('relatedResourceLink')}")
+        assert link is not None and link.text == "https://example.com/corpus"
+
+    def test_no_url_omits_link_element(self):
+        """Free text with no URL produces no relatedResourceLink."""
+        root = _convert_and_parse(_record_with_relation("Some Corpus Name Without URL"))
+        assert root.find(f".//{_ns('relatedResourceLink')}") is None
