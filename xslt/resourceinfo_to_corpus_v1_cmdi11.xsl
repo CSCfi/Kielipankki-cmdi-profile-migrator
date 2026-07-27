@@ -369,25 +369,6 @@
     </xsl:element>
   </xsl:template>
 
-  <!-- Documentation containers: role first; add stub role when absent from source;
-       suppress entirely when the info child has no content (source data quality) -->
-  <xsl:template match="cmd11:documentationStructured|cmd11:documentationUnstructured|
-                       cmd11:documentationStructuredWithUrl" priority="2">
-    <xsl:variable name="info" select="*[local-name() != 'role'][1]"/>
-    <xsl:if test="$info/* or $info/text()[normalize-space()]">
-      <xsl:element name="{local-name()}" namespace="{$NEW_PROFILE_NS}">
-        <xsl:choose>
-          <xsl:when test="cmd11:role">
-            <xsl:apply-templates select="cmd11:role"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="role" namespace="{$NEW_PROFILE_NS}">documentation</xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
-        <xsl:apply-templates select="$info"/>
-      </xsl:element>
-    </xsl:if>
-  </xsl:template>
 
   <!-- Normalize non-standard Res1/Res2 resource proxy types to Resource -->
   <xsl:template match="cmd11:Res1|cmd11:Res2">
