@@ -780,7 +780,7 @@ def _record_with_relation(target_name_uri):
 
 
 class TestRelationInfo:
-    """Tests for relationInfo URL extraction."""
+    """Tests for relationInfo URL and name extraction."""
 
     def test_url_extracted_from_mixed_text(self):
         """URL is extracted when targetResourceNameURI contains label and URL."""
@@ -800,3 +800,22 @@ class TestRelationInfo:
         """Free text with no URL produces no relatedResourceLink."""
         root = _convert_and_parse(_record_with_relation("Some Corpus Name Without URL"))
         assert root.find(f".//{_ns('relatedResourceLink')}") is None
+
+    def test_name_extracted_from_mixed_text(self):
+        """Text before the URL goes into relatedResourceName."""
+        root = _convert_and_parse(
+            _record_with_relation("Some Corpus https://example.com/corpus")
+        )
+        name = root.find(f".//{_ns('relatedResourceName')}")
+        assert name is not None and name.text == "Some Corpus"
+
+    def test_plain_url_has_no_name(self):
+        """A bare URL with no label produces no relatedResourceName."""
+        root = _convert_and_parse(_record_with_relation("https://example.com/corpus"))
+        assert root.find(f".//{_ns('relatedResourceName')}") is None
+
+    def test_plain_text_goes_into_name_without_link(self):
+        """Free text with no URL goes into relatedResourceName, no relatedResourceLink."""
+        root = _convert_and_parse(_record_with_relation("Some Corpus Name Without URL"))
+        name = root.find(f".//{_ns('relatedResourceName')}")
+        assert name is not None and name.text == "Some Corpus Name Without URL"

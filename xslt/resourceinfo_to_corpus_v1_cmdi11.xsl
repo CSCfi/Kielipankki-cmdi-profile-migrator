@@ -114,10 +114,21 @@
           <xsl:for-each select="cmd11:relationInfo">
             <xsl:element name="relation" namespace="{$NEW_PROFILE_NS}">
               <xsl:apply-templates select="cmd11:relationType"/>
+              <xsl:variable name="nameuri"
+                select="cmd11:relatedResource/cmd11:targetResourceNameURI"/>
+              <xsl:variable name="name">
+                <xsl:call-template name="extract-name">
+                  <xsl:with-param name="text" select="$nameuri"/>
+                </xsl:call-template>
+              </xsl:variable>
+              <xsl:if test="$name != ''">
+                <xsl:element name="relatedResourceName" namespace="{$NEW_PROFILE_NS}">
+                  <xsl:value-of select="$name"/>
+                </xsl:element>
+              </xsl:if>
               <xsl:variable name="url">
                 <xsl:call-template name="extract-url">
-                  <xsl:with-param name="text"
-                    select="cmd11:relatedResource/cmd11:targetResourceNameURI"/>
+                  <xsl:with-param name="text" select="$nameuri"/>
                 </xsl:call-template>
               </xsl:variable>
               <xsl:if test="$url != ''">
@@ -415,6 +426,24 @@
     <xsl:if test="$url">
       <xsl:value-of select="$url[1]"/>
     </xsl:if>
+  </xsl:template>
+
+  <!-- Extract the text part (name) from a targetResourceNameURI value that may contain
+       both free-text and a URL (e.g. "Some Label https://example.com" -> "Some Label").
+       Returns everything before the first http:// or https:// token, normalized.
+       Returns empty string when the entire value is a plain URL with no text prefix. -->
+  <xsl:template name="extract-name">
+    <xsl:param name="text"/>
+    <xsl:variable name="url"
+      select="str:tokenize($text, ' &#9;&#10;')[starts-with(., 'https://') or starts-with(., 'http://')]"/>
+    <xsl:choose>
+      <xsl:when test="$url">
+        <xsl:value-of select="normalize-space(substring-before($text, $url[1]))"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="normalize-space($text)"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <!-- ============================================================
