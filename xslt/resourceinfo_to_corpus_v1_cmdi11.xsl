@@ -361,19 +361,6 @@
     </xsl:element>
   </xsl:template>
 
-  <!-- Force role first; limit info to [1] (source may have multiple or wrong order) -->
-  <xsl:template match="cmd11:resourceCreatorOrganization|cmd11:distributionRightsHolderOrganization|
-                       cmd11:licensorOrganization|cmd11:rightholderOrganization|
-                       cmd11:resourceCreatorPerson|cmd11:distributionRightsHolderPerson|
-                       cmd11:licensorPerson|cmd11:rightholderPerson|
-                       cmd11:contactPerson|cmd11:metadataCreator|
-                       cmd11:affiliation" priority="2">
-    <xsl:element name="{local-name()}" namespace="{$NEW_PROFILE_NS}">
-      <xsl:apply-templates select="cmd11:role"/>
-      <xsl:apply-templates select="*[local-name() != 'role'][1]"/>
-    </xsl:element>
-  </xsl:template>
-
 
   <!-- Normalize non-standard Res1/Res2 resource proxy types to Resource -->
   <xsl:template match="cmd11:Res1|cmd11:Res2">
