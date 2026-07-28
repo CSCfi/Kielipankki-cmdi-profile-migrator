@@ -432,14 +432,14 @@
   <xsl:template match="cmd11:relationType" priority="2">
     <xsl:element name="relationType" namespace="{$NEW_PROFILE_NS}">
       <xsl:choose>
-        <xsl:when test=". = 'IsVariantFormOf'">IsVariantFormOf</xsl:when>
+        <xsl:when test=". = 'IsVariantFormOf' or . = 'isVariantFormOf' or . = 'IsVariantOf'">IsVariantFormOf</xsl:when>
         <xsl:when test=". = 'IsOriginalFormOf'">IsOriginalFormOf</xsl:when>
-        <xsl:when test=". = 'IsDerivedFrom'">IsDerivedFrom</xsl:when>
-        <xsl:when test=". = 'IsSourceOf'">IsSourceOf</xsl:when>
-        <xsl:when test=". = 'IsPreviousVersionOf'">IsPreviousVersionOf</xsl:when>
-        <xsl:when test=". = 'IsNewVersionOf'">IsNewVersionOf</xsl:when>
-        <xsl:when test=". = 'IsPartOf'">IsPartOf</xsl:when>
-        <xsl:when test=". = 'HasPart'">HasPart</xsl:when>
+        <xsl:when test=". = 'IsDerivedFrom' or . = 'isDerivedFrom'">IsDerivedFrom</xsl:when>
+        <xsl:when test=". = 'IsSourceOf' or . = 'isSourceOf'">IsSourceOf</xsl:when>
+        <xsl:when test=". = 'IsPreviousVersionOf' or . = 'isPreviousVersionOf'">IsPreviousVersionOf</xsl:when>
+        <xsl:when test=". = 'IsNewVersionOf' or . = 'isNewVersionOf' or . = 'Is NewVersionOf'">IsNewVersionOf</xsl:when>
+        <xsl:when test=". = 'IsPartOf' or . = 'isPartOf' or . = 'sub-corpus of' or . = 'subcorpus-of' or . = 'sub-corpora of'">IsPartOf</xsl:when>
+        <xsl:when test=". = 'HasPart' or . = 'contains'">HasPart</xsl:when>
         <xsl:when test=". = 'IsContinuedBy'">IsContinuedBy</xsl:when>
         <xsl:when test=". = 'Continues'">Continues</xsl:when>
         <xsl:when test=". = 'IsCompiledBy'">IsCompiledBy</xsl:when>
