@@ -149,11 +149,16 @@
   <xsl:template match="cmd11:identificationInfo" priority="2">
     <xsl:element name="identificationInfo" namespace="{$NEW_PROFILE_NS}">
       <xsl:apply-templates select="cmd11:resourceName"/>
-      <xsl:for-each select="cmd11:resourceShortName[1]">
-        <xsl:element name="resourceShortName" namespace="{$NEW_PROFILE_NS}">
-          <xsl:value-of select="."/>
-        </xsl:element>
-      </xsl:for-each>
+      <xsl:choose>
+        <xsl:when test="count(cmd11:resourceShortName) &gt; 1">
+          <xsl:element name="resourceShortName" namespace="{$NEW_PROFILE_NS}">TODO: multiple resourceShortName, resolve manually</xsl:element>
+        </xsl:when>
+        <xsl:when test="cmd11:resourceShortName">
+          <xsl:element name="resourceShortName" namespace="{$NEW_PROFILE_NS}">
+            <xsl:value-of select="cmd11:resourceShortName"/>
+          </xsl:element>
+        </xsl:when>
+      </xsl:choose>
       <xsl:apply-templates select="cmd11:description"/>
     </xsl:element>
   </xsl:template>
