@@ -183,6 +183,73 @@ class TestIdentificationInfo:
         assert info.get("ComponentId") is None
 
 
+def _record_with_attribution_text(*attribution_texts):
+    """Build a minimal record with one or more attributionText values in licenceInfo."""
+    texts_xml = "".join(
+        f'<attributionText xml:lang="{lang}">{text}</attributionText>'
+        for lang, text in attribution_texts
+    )
+    return f"""<?xml version='1.0' encoding='UTF-8'?>
+<CMD xmlns="{CMD_NS}" CMDVersion="1.1">
+  <Header><MdProfile>{OLD_PROFILE}</MdProfile></Header>
+  <Resources><ResourceProxyList/></Resources>
+  <Components>
+    <resourceInfo>
+      <identificationInfo ComponentId="clarin.eu:cr1:c_1349361150743">
+        <resourceName xml:lang="en">Test</resourceName>
+        <description xml:lang="en">Test.</description>
+      </identificationInfo>
+      <distributionInfo ComponentId="clarin.eu:cr1:c_1352813745459">
+        <availability>underNegotiation</availability>
+        <licenceInfo ComponentId="clarin.eu:cr1:c_1352813745464">
+          <licence>CC-BY</licence>
+          {texts_xml}
+        </licenceInfo>
+      </distributionInfo>
+    </resourceInfo>
+  </Components>
+</CMD>
+""".encode()
+
+
+class TestCitationInfo:
+    """Tests for citationInfo populated from attributionText."""
+
+    def test_attribution_text_becomes_citation_info(self):
+        """attributionText produces a citationInfo/text element."""
+        root = _convert_and_parse(
+            _record_with_attribution_text(("en", "Please cite as: Foo et al. 2020."))
+        )
+        text = root.find(f".//{_ns('citationInfo')}/{_ns('text')}")
+        assert text is not None and text.text == "Please cite as: Foo et al. 2020."
+
+    def test_attribution_text_lang_preserved(self):
+        """xml:lang attribute is preserved on the citationInfo text element."""
+        root = _convert_and_parse(
+            _record_with_attribution_text(("en", "Please cite as: Foo et al. 2020."))
+        )
+        text = root.find(f".//{_ns('citationInfo')}/{_ns('text')}")
+        assert text.get("{http://www.w3.org/XML/1998/namespace}lang") == "en"
+
+    def test_multiple_attribution_texts_become_multiple_texts(self):
+        """Multiple attributionText values each become a separate text element."""
+        root = _convert_and_parse(
+            _record_with_attribution_text(
+                ("en", "Cite as: Foo 2020."),
+                ("fi", "Viittaa: Foo 2020."),
+            )
+        )
+        texts = root.findall(f".//{_ns('citationInfo')}/{_ns('text')}")
+        assert len(texts) == 2
+        assert texts[0].text == "Cite as: Foo 2020."
+        assert texts[1].text == "Viittaa: Foo 2020."
+
+    def test_no_attribution_text_produces_no_citation_info(self):
+        """Records without attributionText produce no citationInfo element."""
+        root = _convert_and_parse(_record_with_licence("CC-BY"))
+        assert root.find(f".//{_ns('citationInfo')}") is None
+
+
 class TestDistributionInfo:
     """Tests for distributionInfo restructuring."""
 

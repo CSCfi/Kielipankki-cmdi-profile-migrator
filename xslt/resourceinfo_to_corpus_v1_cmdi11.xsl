@@ -160,6 +160,18 @@
         </xsl:when>
       </xsl:choose>
       <xsl:apply-templates select="cmd11:description"/>
+      <xsl:variable name="attributionTexts"
+        select="../cmd11:distributionInfo/cmd11:licenceInfo/cmd11:attributionText"/>
+      <xsl:if test="$attributionTexts">
+        <xsl:element name="citationInfo" namespace="{$NEW_PROFILE_NS}">
+          <xsl:for-each select="$attributionTexts">
+            <xsl:element name="text" namespace="{$NEW_PROFILE_NS}">
+              <xsl:apply-templates select="@xml:lang"/>
+              <xsl:value-of select="."/>
+            </xsl:element>
+          </xsl:for-each>
+        </xsl:element>
+      </xsl:if>
     </xsl:element>
   </xsl:template>
 
