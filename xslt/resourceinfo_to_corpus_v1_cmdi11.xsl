@@ -266,27 +266,17 @@
       <xsl:apply-templates select="cmd11:metadataCreationDate"/>
       <xsl:apply-templates select="cmd11:metadataLastDateUpdated"/>
       <xsl:element name="metadataRevisionLog" namespace="{$NEW_PROFILE_NS}">
-        <xsl:variable name="rev-date">
-          <xsl:choose>
-            <xsl:when test="string(cmd11:metadataLastDateUpdated)">
-              <xsl:value-of select="cmd11:metadataLastDateUpdated"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="cmd11:metadataCreationDate"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
-        <xsl:for-each select="cmd11:revision[string($rev-date)]">
+        <xsl:if test="cmd11:revision and cmd11:metadataLastDateUpdated">
           <xsl:element name="logEntry" namespace="{$NEW_PROFILE_NS}">
             <xsl:element name="date" namespace="{$NEW_PROFILE_NS}">
-              <xsl:value-of select="$rev-date"/>
+              <xsl:value-of select="cmd11:metadataLastDateUpdated"/>
             </xsl:element>
             <xsl:element name="note" namespace="{$NEW_PROFILE_NS}">
               <xsl:attribute name="xml:lang">en</xsl:attribute>
-              <xsl:value-of select="."/>
+              <xsl:value-of select="cmd11:revision"/>
             </xsl:element>
           </xsl:element>
-        </xsl:for-each>
+        </xsl:if>
       </xsl:element>
       <xsl:variable name="selflink"
         select="ancestor::cmd11:CMD/cmd11:Header/cmd11:MdSelfLink"/>
