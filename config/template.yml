@@ -7,6 +7,8 @@ oai_url: https://clarino.uib.no/oai
 oai_set: FIN-CLARIN
 metadata_prefix: cmdi
 upload_url: https://clarino.uib.no/comedi/upload
+upload_identifier_prefix: my-prefix
+upload_group: my-group
 raw_dir: records/raw
 converted_dir: records/converted
 schema: /path/to/resourceInfo-corpus-v1.xsd

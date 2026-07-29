@@ -23,6 +23,8 @@ def config_file(tmp_path):
         "oai_url: https://oai.example.org/oai\n"
         "oai_set: my-corpus\n"
         "upload_url: https://api.example.org\n"
+        "upload_identifier_prefix: test-prefix\n"
+        "upload_group: test-group\n"
         "raw_dir: .\n"
         f"converted_dir: {tmp_path}/converted\n",
         encoding="utf-8",
@@ -64,3 +66,72 @@ class TestConfig:
             ],
         )
         assert "Missing option" not in result.output
+
+
+class TestUploadOptions:
+    """Tests for upload-specific CLI options."""
+
+    def test_upload_identifier_prefix_from_config(self, runner, config_file, tmp_path):
+        """upload_identifier_prefix from config file is accepted."""
+        result = runner.invoke(
+            cli,
+            [
+                "--config",
+                config_file,
+                "upload",
+                "--converted-dir",
+                str(tmp_path),
+                "--session-id",
+                "abc123",
+            ],
+        )
+        assert "Missing option '--upload-identifier-prefix'" not in result.output
+
+    def test_upload_identifier_prefix_empty_string_allowed(self, runner, tmp_path):
+        """upload_identifier_prefix can be set to an empty string explicitly."""
+        result = runner.invoke(
+            cli,
+            [
+                "upload",
+                "--converted-dir",
+                str(tmp_path),
+                "--upload-url",
+                "https://api.example.org",
+                "--upload-identifier-prefix",
+                "",
+                "--session-id",
+                "abc123",
+            ],
+        )
+        assert "Missing option '--upload-identifier-prefix'" not in result.output
+
+    def test_group_from_config(self, runner, config_file, tmp_path):
+        """group from config file is accepted."""
+        result = runner.invoke(
+            cli,
+            [
+                "--config",
+                config_file,
+                "upload",
+                "--converted-dir",
+                str(tmp_path),
+                "--session-id",
+                "abc123",
+            ],
+        )
+        assert "Missing option '--upload-group'" not in result.output
+
+    def test_session_id_required(self, runner, config_file, tmp_path):
+        """session-id must be provided."""
+        result = runner.invoke(
+            cli,
+            [
+                "--config",
+                config_file,
+                "upload",
+                "--converted-dir",
+                str(tmp_path),
+            ],
+        )
+        assert result.exit_code != 0
+        assert "Missing option '--session-id'" in result.output

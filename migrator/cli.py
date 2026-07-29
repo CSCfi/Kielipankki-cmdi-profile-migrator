@@ -22,6 +22,24 @@ _opt_oai_set = click.option(
 _opt_upload_url = click.option(
     "--upload-url", required=True, help="URL used when uploading the records"
 )
+_opt_upload_identifier_prefix = click.option(
+    "--upload-identifier-prefix",
+    required=True,
+    help="Prefix used when constructing identifiers for uploaded records",
+)
+_opt_session_id = click.option(
+    "--session-id",
+    required=True,
+    help=(
+        "Session ID for authentication "
+        "(see https://clarino.uib.no/comedi/documentation/comedi-documentation#batch_upload)"
+    ),
+)
+_opt_group = click.option(
+    "--upload-group",
+    required=True,
+    help="Group to which uploaded records will belong",
+)
 _opt_limit = click.option(
     "--limit", default=None, type=int, help="Stop after N records"
 )
@@ -128,6 +146,9 @@ def validate(converted_dir, schema, quiet):
     help="Directory containing the converted records to upload",
 )
 @_opt_upload_url
+@_opt_upload_identifier_prefix
+@_opt_group
+@_opt_session_id
 @click.option(
     "--dry-run",
     is_flag=True,
@@ -135,7 +156,15 @@ def validate(converted_dir, schema, quiet):
     help="Print what would be uploaded without uploading",
 )
 @_opt_limit
-def upload(converted_dir, upload_url, dry_run, limit):
+def upload(
+    converted_dir,
+    upload_url,
+    upload_identifier_prefix,
+    upload_group,
+    session_id,
+    dry_run,
+    limit,
+):
     """Upload converted records to the repository."""
     raise NotImplementedError("upload is not yet implemented")
 
@@ -144,6 +173,9 @@ def upload(converted_dir, upload_url, dry_run, limit):
 @_opt_oai_url
 @_opt_oai_set
 @_opt_upload_url
+@_opt_upload_identifier_prefix
+@_opt_group
+@_opt_session_id
 @click.option(
     "--raw-dir",
     required=True,
@@ -163,6 +195,17 @@ def upload(converted_dir, upload_url, dry_run, limit):
     help="Harvest and convert but do not upload",
 )
 @_opt_limit
-def run(oai_url, oai_set, upload_url, raw_dir, converted_dir, dry_run, limit):
+def run(
+    oai_url,
+    oai_set,
+    upload_url,
+    upload_identifier_prefix,
+    upload_group,
+    session_id,
+    raw_dir,
+    converted_dir,
+    dry_run,
+    limit,
+):
     """Run the full pipeline: harvest, convert, validate and upload"""
     raise NotImplementedError("run is not yet implemented")
