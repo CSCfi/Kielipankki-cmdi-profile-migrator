@@ -10,6 +10,7 @@ import click
 import yaml  # type: ignore[import-untyped]  # PyYAML ships no type stubs
 from migrator.convert import convert_dir as _convert_dir
 from migrator.harvest import harvest as _harvest
+from migrator.upload import upload_dir as _upload_dir
 from migrator.validate import validate_dir as _validate_dir
 
 _opt_quiet = click.option(
@@ -150,10 +151,9 @@ def validate(converted_dir, schema, quiet):
 @_opt_group
 @_opt_session_id
 @click.option(
-    "--dry-run",
-    is_flag=True,
+    "--dry-run/--no-dry-run",
     default=True,
-    help="Print what would be uploaded without uploading",
+    help="Print what would be uploaded without actually uploading (default: dry run)",
 )
 @_opt_limit
 def upload(
@@ -166,7 +166,21 @@ def upload(
     limit,
 ):
     """Upload converted records to the repository."""
-    raise NotImplementedError("upload is not yet implemented")
+    uploaded, failed = _upload_dir(
+        converted_dir,
+        upload_url,
+        upload_group,
+        session_id,
+        upload_identifier_prefix,
+        dry_run,
+        limit,
+    )
+    if dry_run:
+        click.echo(f"Dry run complete. {uploaded} record(s) would be uploaded.")
+    else:
+        click.echo(f"Done. {uploaded} uploaded, {failed} failed.")
+    if failed:
+        raise click.ClickException(f"{failed} record(s) failed to upload.")
 
 
 @cli.command()
