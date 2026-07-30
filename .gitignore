@@ -1,1 +1,11 @@
 profiles
+records
+config/*
+!config/template.yml
+*/__pycache__
+
+.venv*
+
+*.sw?
+
+.claude
