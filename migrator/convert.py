@@ -13,12 +13,11 @@ from lxml import etree  # type: ignore[import-untyped]  # lxml ships no type stu
 
 _XSLT_DIR = Path(__file__).parent.parent / "xslt"
 
+_SUPPORTED_PROFILES = {"clarin.eu:cr1:p_1361876010571"}
+
 _transforms = {
     "1.1": etree.XSLT(
         etree.parse(str(_XSLT_DIR / "resourceinfo_to_corpus_v1_cmdi11.xsl"))
-    ),
-    "1.2": etree.XSLT(
-        etree.parse(str(_XSLT_DIR / "resourceinfo_to_corpus_v1_cmdi12.xsl"))
     ),
 }
 
@@ -28,13 +27,25 @@ def _detect_version(doc):
     return doc.get("CMDVersion", "1.1")
 
 
+def _detect_profile(doc):
+    """Return the MdProfile value from the document header, or None if absent."""
+    ns = {"cmd11": "http://www.clarin.eu/cmd/", "cmd": "http://www.clarin.eu/cmd/1"}
+    el = doc.find(".//cmd11:MdProfile", ns)
+    if el is None:
+        el = doc.find(".//cmd:MdProfile", ns)
+    return el.text.strip() if el is not None and el.text else None
+
+
 def convert(xml_bytes):
     """Convert a single CMDI resourceInfo record to resourceInfo-corpus-v1.
 
     Returns converted XML as bytes. Raises RuntimeError if the XSLT reports errors.
     """
     doc = etree.fromstring(xml_bytes)
-    transform = _transforms[_detect_version(doc)]
+    version = _detect_version(doc)
+    if version not in _transforms:
+        raise ValueError(f"No stylesheet available for CMDI version {version!r}")
+    transform = _transforms[version]
     result = transform(doc)
     if transform.error_log:
         raise RuntimeError(str(transform.error_log))
@@ -53,7 +64,15 @@ def convert_dir(raw_dir, converted_dir, limit, quiet=False):
     out.mkdir(parents=True, exist_ok=True)
 
     count = 0
+    skip_messages = []
     for src in sorted(inp.glob("*.xml")):
+        doc = etree.fromstring(src.read_bytes())
+        profile = _detect_profile(doc)
+        if profile not in _SUPPORTED_PROFILES:
+            skip_messages.append(
+                f"Skipping {src.name}: unsupported profile {profile!r}"
+            )
+            continue
         (out / src.name).write_bytes(convert(src.read_bytes()))
         count += 1
         if not quiet:
@@ -63,4 +82,6 @@ def convert_dir(raw_dir, converted_dir, limit, quiet=False):
 
     if not quiet:
         click.echo("")
-    return count
+        for msg in skip_messages:
+            click.echo(msg)
+    return count, len(skip_messages)

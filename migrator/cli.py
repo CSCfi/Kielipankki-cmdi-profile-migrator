@@ -113,8 +113,11 @@ def harvest(oai_url, oai_set, metadata_prefix, raw_dir, limit, quiet):
 @_opt_quiet
 def convert(raw_dir, converted_dir, limit, quiet):
     """Convert records from resourceInfo to resourceInfo-corpus-v1."""
-    count = _convert_dir(raw_dir, converted_dir, limit, quiet)
-    click.echo(f"Done. Converted {count} records to {converted_dir}.")
+    count, skipped = _convert_dir(raw_dir, converted_dir, limit, quiet)
+    msg = f"Done. Converted {count} records to {converted_dir}."
+    if skipped:
+        msg += f" Skipped {skipped}."
+    click.echo(msg)
 
 
 @cli.command()
